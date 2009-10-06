@@ -1,0 +1,125 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-10-06 19:41+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin.py:73 admin.py:84
+msgid "Show to"
+msgstr ""
+
+#: admin.py:83 admin.py:91
+msgid "All"
+msgstr ""
+
+#: admin.py:92 models.py:62
+msgid "Categories"
+msgstr ""
+
+#: models.py:36 models.py:137
+msgid "News type"
+msgstr ""
+
+#: models.py:37
+msgid "News types"
+msgstr ""
+
+#: models.py:40
+msgid "Draft"
+msgstr ""
+
+#: models.py:41
+msgid "Published"
+msgstr ""
+
+#: models.py:55
+msgid "If should be displayed or not."
+msgstr ""
+
+#: models.py:69
+msgid "Visible only to"
+msgstr ""
+
+#: models.py:70
+msgid "News visible to these users, if empty is visible to all users."
+msgstr ""
+
+#: models.py:75
+msgid "News date"
+msgstr ""
+
+#: models.py:76
+msgid "Date which news refers to."
+msgstr ""
+
+#: models.py:81
+msgid "Publication date begin"
+msgstr ""
+
+#: models.py:82
+msgid "When news publication date begins."
+msgstr ""
+
+#: models.py:87
+msgid "Publication date end"
+msgstr ""
+
+#: models.py:88
+msgid "When news publication date ends."
+msgstr ""
+
+#: models.py:93 models.py:142
+msgid "Title"
+msgstr ""
+
+#: models.py:98 models.py:147
+msgid "Slug field"
+msgstr ""
+
+#: models.py:104 models.py:151
+msgid "Abstract"
+msgstr ""
+
+#: models.py:105
+msgid "A brief description of the news"
+msgstr ""
+
+#: models.py:110
+msgid "Default text"
+msgstr ""
+
+#: models.py:114
+msgid "Note"
+msgstr ""
+
+#: models.py:118 models.py:119
+msgid "News"
+msgstr ""
+
+#: models.py:152
+msgid "A brief description"
+msgstr ""
+
+#: models.py:155
+msgid "Body"
+msgstr ""
+
+#: models.py:159
+msgid "News translation"
+msgstr ""
+
+#: models.py:160
+msgid "News translations"
+msgstr ""
