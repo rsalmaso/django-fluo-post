@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
@@ -121,6 +122,8 @@ class News(models.OrderedModel, models.I18NModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
+        if not self.event_date and self.status == PUBLISHED:
+            self.event_date = datetime.datetime.now()
         super(News, self).save(*args, **kwargs)
 
     @models.permalink
