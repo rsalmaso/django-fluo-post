@@ -26,8 +26,10 @@ from django.shortcuts import get_object_or_404
 from fluo.shortcuts import render_to_response
 from news.models import News, NewsTranslation
 
-def news_list(request, template_name='news/list.html', paginate_by=25):
+def news_list(request, template_name='news/list.html', paginate_by=25, order_by=None):
     news_list = News.objects.published()
+    if order_by:
+        news_list = news_list.order_by(*order_by)
     paginate_by = getattr(settings, 'NEWS_PAGINATE_BY', paginate_by)
     paginator = Paginator(news_list, paginate_by)
 
