@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2007-2009, Salmaso Raffaele <raffaele@salmaso.org>
+# Copyright (C) 2007-2010, Salmaso Raffaele <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,12 @@
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from fluo import admin
+from fluo import forms
 from news.models import News, Category, NewsTranslation
 
 MAX_LANGUAGES = len(settings.LANGUAGES)
 
-class CategoryAdminForm(admin.ModelForm):
+class CategoryAdminForm(forms.ModelForm):
     class Meta:
         model = Category
 class CategoryAdmin(admin.CategoryModelAdmin):
@@ -35,7 +36,7 @@ class CategoryAdmin(admin.CategoryModelAdmin):
     form = CategoryAdminForm
 admin.site.register(Category, CategoryAdmin)
 
-class NewsTranslationInlineModelForm(admin.ModelForm):
+class NewsTranslationInlineModelForm(forms.ModelForm):
     class Meta:
         model = NewsTranslation
 class NewsTranslationInline(admin.TabularInline):
@@ -44,7 +45,7 @@ class NewsTranslationInline(admin.TabularInline):
     extra = MAX_LANGUAGES
     max_num = MAX_LANGUAGES
     fields = ('language', 'title', 'abstract', 'text',)
-class NewsAdminForm(admin.ModelForm):
+class NewsAdminForm(forms.ModelForm):
     class Meta:
         model =  News
 class NewsAdmin(admin.OrderedModelAdmin):
