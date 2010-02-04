@@ -128,8 +128,11 @@ class News(models.OrderedModel, models.I18NModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
+        now = datetime.datetime.now()
         if not self.event_date and self.status == PUBLISHED:
-            self.event_date = datetime.datetime.now()
+            self.event_date = now
+        if not self.pub_date_begin and self.status == PUBLISHED:
+            self.pub_date_begin = now
         super(News, self).save(*args, **kwargs)
 
     @models.permalink
