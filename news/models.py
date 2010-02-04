@@ -24,6 +24,7 @@ import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
+from fluo.models import Q
 from fluo import models
 
 class Category(models.CategoryModel):
@@ -41,9 +42,14 @@ STATUS_CHOICES = (
 
 class NewsManager(models.Manager):
     def draft(self):
-        return self.filter(status=DRAFT)
+        return self._filter(status=DRAFT)
     def published(self):
-        return self.filter(status=PUBLISHED)
+        return self._filter(status=PUBLISHED)
+    def _filter(self, status):
+        now = datetime.datetime.now()
+        q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__gte=now))
+        q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__lte=now))
+        return self.filter(status=status).filter(q1 & q2)
 
 class News(models.OrderedModel, models.I18NModel):
     objects = NewsManager()
