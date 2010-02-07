@@ -47,8 +47,8 @@ class NewsManager(models.Manager):
         return self._filter(status=PUBLISHED)
     def _filter(self, status):
         now = datetime.datetime.now()
-        q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__gte=now))
-        q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__lte=now))
+        q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
+        q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
 
 class News(models.OrderedModel, models.I18NModel):
