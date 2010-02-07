@@ -170,3 +170,30 @@ def get_draft_news(parser, token):
     """
     return _get_news(parser, token, 'get_draft_news', models.News.objects.draft)
 
+class GetNewsNode(template.Node):
+    def __init__(self, name):
+        self.name = name
+
+    def render(self, context):
+        request = context['request']
+        slug = context['params']['slug']
+        try:
+            news = models.NewsTranslation.objects.get(slug=slug).news
+        except models.NewsTranslation.DoesNotExist:
+            news = models.News.objects.get(slug=slug)
+        context[self.name] = news
+
+        return ''
+
+@register.tag
+def get_news(parser, token):
+    """
+    Usage::
+
+        {% get_news as news %}
+    """
+    args = token.split_contents()
+    if len(args) < 3:
+        raise TemplateSyntaxError, "'get_news' requires 'as variable' (got %r)" % args
+    return GetNewsNode(args[2])
+
