@@ -22,6 +22,7 @@
 
 import datetime
 from django import template
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template import TemplateSyntaxError, Library
 from django.conf import settings
 from django.db.models import Q
@@ -30,45 +31,58 @@ models = import_module('news.models')
 
 register = template.Library()
 
-class GetNewsNode(template.Node):
-    def __init__(self, variable, category=None, order_by=None, limit=None, status=None):
-        self.variable = variable
+class GetNewsListNode(template.Node):
+    def __init__(self, name, category=None, order_by=None, limit=None, query_set=None, paginate_by=False):
+        self.name = name
         self.limit = limit
-        self.status = status
+        self.query_set = query_set
         self.category = category
         self.order_by = order_by
+        self.paginate_by = paginate_by
+
+    def _paginate(self, request, news_list, paginate_by):
+        paginator = Paginator(news_list, paginate_by)
+
+        try:
+            page = int(request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+
+        try:
+            news = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            news = paginator.page(paginator.num_pages)
+
+        return news
 
     def render(self, context):
-        if self.status:
-            kwargs = {'status': self.status}
-        else:
-            kwargs = {}
+        news = self.query_set()
 
         if self.category:
-            kwargs.update({'categories__name__in': self.category})
+            news = news.filter(categories__name__in=self.category)
 
-        news = models.News.objects.filter(**kwargs)
         if self.order_by:
             news = news.order_by(*self.order_by)
 
-        # filter by pubblication date
-        now = datetime.datetime.now()
-        q1 = Q(pub_date_begin__lte=now) | Q(pub_date_begin__isnull=True)
-        q2 = Q(pub_date_end__gte=now) | Q(pub_date_end__isnull=True)
-        news = news.filter(q1 & q2)
         if self.limit:
             news = news[:self.limit]
-        context[self.variable] = news
+
+        if self.paginate_by:
+            request = context['request']
+            news = self._paginate(request, news, self.paginate_by)
+
+        context[self.name] = news
         return ''
 
-def _get_news(parser, token, tag_name, status=None):
+def _get_news(parser, token, tag_name, query_set=None):
     args = token.split_contents()[1:]
     kwargs = {
         'as': None,
         'limit': None,
         'category': None,
         'order_by': None,
-        'status': status,
+        'paginate_by': None,
+        'query_set': query_set,
     }
     kw = kwargs.keys()
 
@@ -81,7 +95,7 @@ def _get_news(parser, token, tag_name, status=None):
         key = args[i]
         value = args[i+1]
         if key in kw:
-            if key == 'limit':
+            if key in ('limit', 'paginate_by'):
                 try:
                     value = int(value)
                 except ValueError, err:
@@ -92,28 +106,29 @@ def _get_news(parser, token, tag_name, status=None):
             i += 2
         else:
             raise TemplateSyntaxError, "'%s' unknown keyword (got %r)" % (tag_name, key)
-    kwargs['variable'] = kwargs['as']
+    kwargs['name'] = kwargs['as']
     kwargs.pop('as')
-    return GetNewsNode(**kwargs)
+    return GetNewsListNode(**kwargs)
 
 @register.tag
-def get_news(parser, token):
+def get_all_news(parser, token):
     """
     This will store a list of the news
     in the context.
 
     Usage::
 
-        {% get_news as news %}
-        {% get_news as news max 5 %}
-        {% get_news as news category 'main'  %}
-        {% get_news as news order_by '-date'  %}
+        {% get_all_news as news %}
+        {% get_all_news as news paginate_by 25 %}
+        {% get_all_news as news max 5 %}
+        {% get_all_news as news category 'main'  %}
+        {% get_all_news as news order_by '-date'  %}
 
         {% for item in news %}
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_news', None)
+    return _get_news(parser, token, 'get_all_news', models.News.objects.all)
 
 @register.tag
 def get_published_news(parser, token):
@@ -124,6 +139,7 @@ def get_published_news(parser, token):
     Usage::
 
         {% get_published_news as news %}
+        {% get_published_news as news paginate_by 25 %}
         {% get_published_news as news max 5 %}
         {% get_published_news as news category 'main'  %}
         {% get_published_news as news order_by '-date'  %}
@@ -132,7 +148,7 @@ def get_published_news(parser, token):
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_published_news', models.PUBLISHED)
+    return _get_news(parser, token, 'get_published_news', models.News.objects.published)
 
 @register.tag
 def get_draft_news(parser, token):
@@ -143,6 +159,7 @@ def get_draft_news(parser, token):
     Usage::
 
         {% get_draft_news as news %}
+        {% get_draft_news as news paginate_by 25 %}
         {% get_draft_news as news max 5 %}
         {% get_draft_news as news category 'main'  %}
         {% get_draft_news as news order_by '-date'  %}
@@ -151,5 +168,5 @@ def get_draft_news(parser, token):
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_draft_news', models.DRAFT)
+    return _get_news(parser, token, 'get_draft_news', models.News.objects.draft)
 
