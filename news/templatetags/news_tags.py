@@ -26,8 +26,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template import TemplateSyntaxError, Library
 from django.conf import settings
 from django.db.models import Q
-from django.utils.importlib import import_module
-models = import_module('news.models')
+from news import models
 
 register = template.Library()
 
