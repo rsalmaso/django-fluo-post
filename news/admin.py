@@ -70,7 +70,7 @@ class NewsAdmin(admin.OrderedModelAdmin):
     filter_horizontal = ('users', 'categories',)
     inlines = (NewsTranslationInline,)
 
-    def _get_users(self):
+    def _get_users(self, obj):
         users = self.users.all().order_by('username')
         if users:
             return u', '.join([user.username for user in users])
@@ -78,7 +78,7 @@ class NewsAdmin(admin.OrderedModelAdmin):
             return _(u'All')
     _get_users.short_description = _('Show to')
 
-    def _get_categories(self):
+    def _get_categories(self, obj):
         categories = self.categories.all().order_by('name')
         if categories:
             return u', '.join([category.name for category in categories])
