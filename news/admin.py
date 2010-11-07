@@ -48,6 +48,13 @@ class NewsTranslationInline(admin.TabularInline):
 class NewsAdminForm(forms.ModelForm):
     class Meta:
         model =  News
+    def __init__(self, *args, **kwargs):
+        super(NewsAdminForm, self).__init__(*args, **kwargs)
+        try:
+            from tinymce.widgets import TinyMCE
+            self.fields['text'].widget = TinyMCE()
+        except ImportError:
+            pass
 class NewsAdmin(admin.OrderedModelAdmin):
     model = News
     form = NewsAdminForm
