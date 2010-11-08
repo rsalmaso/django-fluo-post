@@ -119,7 +119,7 @@ def get_all_news(parser, token):
 
         {% get_all_news as news %}
         {% get_all_news as news paginate_by 25 %}
-        {% get_all_news as news max 5 %}
+        {% get_all_news as news limit 5 %}
         {% get_all_news as news category 'main'  %}
         {% get_all_news as news order_by '-date'  %}
 
@@ -139,7 +139,7 @@ def get_published_news(parser, token):
 
         {% get_published_news as news %}
         {% get_published_news as news paginate_by 25 %}
-        {% get_published_news as news max 5 %}
+        {% get_published_news as news limit 5 %}
         {% get_published_news as news category 'main'  %}
         {% get_published_news as news order_by '-date'  %}
 
@@ -159,7 +159,7 @@ def get_draft_news(parser, token):
 
         {% get_draft_news as news %}
         {% get_draft_news as news paginate_by 25 %}
-        {% get_draft_news as news max 5 %}
+        {% get_draft_news as news limit 5 %}
         {% get_draft_news as news category 'main'  %}
         {% get_draft_news as news order_by '-date'  %}
 
