@@ -199,3 +199,39 @@ def get_post(parser, token, name='get_post', post_model=models.Post, translation
         raise TemplateSyntaxError, "'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args }
     return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)
 
+class GetCalendarNode(template.Node):
+    def __init__(self, month, year, var_name):
+        self.year = template.Variable(year)
+        self.month = template.Variable(month)
+        self.var_name = var_name
+
+    def render(self, context):
+        mycal = Calendar()
+        context[self.var_name] = mycal.monthdatescalendar(int(self.year.resolve(context)), int(self.month.resolve(context)))
+
+        return ''
+
+@register.tag
+def get_post_calendar(parser, token, name='get_post_calendar', post_model=models.Post, translation_model=models.PostTranslation):
+    syntax_help = "syntax should be \"get_calendar for <month> <year> as <var_name>\""
+    # This version uses a regular expression to parse tag contents.
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires arguments, %s" % (token.contents.split()[0], syntax_help)
+    m = re.search(r'for (.*?) (.*?) as (\w+)', arg)
+    if m:
+        month, year, var = m.groups(0)[0], m.groups(0)[1], m.groups(0)[2]
+    else:
+        m = re.search(r'as (\w+)', arg)
+        if m:
+            today = datetime.date.today()
+            month = today.month
+            year = today.year
+            var = m.groups(0)[0]
+        else:
+            raise template.TemplateSyntaxError, "%r tag had invalid arguments, %s" % (tag_name, syntax_help)
+
+    return GetCalendarNode(month=month, year=year, var_name=var)
+
