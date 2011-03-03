@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from fluo import admin
 from fluo import forms
-from news.models import News, Category, NewsTranslation
+from post.models import Post, Category, PostTranslation
 
 MAX_LANGUAGES = len(settings.LANGUAGES)
 
@@ -36,33 +36,34 @@ class CategoryAdmin(admin.CategoryModelAdmin):
     form = CategoryAdminForm
 admin.site.register(Category, CategoryAdmin)
 
-class NewsTranslationInlineModelForm(forms.ModelForm):
+class PostTranslationInlineModelForm(forms.ModelForm):
     class Meta:
-        model = NewsTranslation
-class NewsTranslationInline(admin.TabularInline):
-    model = NewsTranslation
-    form = NewsTranslationInlineModelForm
+        model = PostTranslation
+class PostTranslationInline(admin.TabularInline):
+    model = PostTranslation
+    form = PostTranslationInlineModelForm
     extra = MAX_LANGUAGES
     max_num = MAX_LANGUAGES
     fields = ('language', 'title', 'abstract', 'text',)
-class NewsAdminForm(forms.ModelForm):
+class PostAdminForm(forms.ModelForm):
     class Meta:
-        model =  News
+        model =  Post
     def __init__(self, *args, **kwargs):
-        super(NewsAdminForm, self).__init__(*args, **kwargs)
+        super(PostAdminForm, self).__init__(*args, **kwargs)
         try:
             from tinymce.widgets import TinyMCE
             self.fields['text'].widget = TinyMCE()
         except ImportError:
             pass
-class NewsAdmin(admin.OrderedModelAdmin):
-    model = News
-    form = NewsAdminForm
+class PostAdmin(admin.OrderedModelAdmin):
+    model = Post
+    form = PostAdminForm
     list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_categories', '_get_users',)
     list_display_links = ('__unicode__',)
     list_per_page = 30
     ordering = ("ordering",)
     fieldsets = (
+        #(_('Detail'), {'fields': ('created_at', 'last_modified_at'), 'classes': ('collapse',),}),
         (None, {"fields": (
             ('status', 'ordering',),
             'title',
@@ -75,7 +76,7 @@ class NewsAdmin(admin.OrderedModelAdmin):
         (_('Show to'), {'fields': ('users',),}),
     )
     filter_horizontal = ('users', 'categories',)
-    inlines = (NewsTranslationInline,)
+    inlines = (PostTranslationInline,)
 
     def _get_users(self, obj):
         users = self.users.all().order_by('username')
@@ -93,5 +94,5 @@ class NewsAdmin(admin.OrderedModelAdmin):
             return _(u'All')
     _get_categories.short_description = _('Categories')
 
-admin.site.register(News, NewsAdmin)
+admin.site.register(Post, PostAdmin)
 

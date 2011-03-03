@@ -26,11 +26,11 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template import TemplateSyntaxError, Library
 from django.conf import settings
 from django.db.models import Q
-from news import models
+from post import models
 
 register = template.Library()
 
-class GetNewsListNode(template.Node):
+class GetPostListNode(template.Node):
     def __init__(self, name, category=None, order_by=None, limit=None, query_set=None, paginate_by=False):
         self.name = name
         self.limit = limit
@@ -40,7 +40,7 @@ class GetNewsListNode(template.Node):
         self.paginate_by = paginate_by
 
     def _paginate(self, request, news_list, paginate_by):
-        paginator = Paginator(news_list, paginate_by)
+        paginator = Paginator(post_list, paginate_by)
 
         try:
             page = int(request.GET.get('page', '1'))
@@ -48,32 +48,32 @@ class GetNewsListNode(template.Node):
             page = 1
 
         try:
-            news = paginator.page(page)
+            post = paginator.page(page)
         except (EmptyPage, InvalidPage):
-            news = paginator.page(paginator.num_pages)
+            post = paginator.page(paginator.num_pages)
 
-        return news
+        return post
 
     def render(self, context):
-        news = self.query_set()
+        post = self.query_set()
 
         if self.category:
-            news = news.filter(categories__name__in=self.category)
+            post = post.filter(categories__name__in=self.category)
 
         if self.order_by:
-            news = news.order_by(*self.order_by)
+            post = post.order_by(*self.order_by)
 
         if self.limit:
-            news = news[:self.limit]
+            post = post[:self.limit]
 
         if self.paginate_by:
             request = context['request']
-            news = self._paginate(request, news, self.paginate_by)
+            post = self._paginate(request, post, self.paginate_by)
 
-        context[self.name] = news
+        context[self.name] = post
         return ''
 
-def _get_news(parser, token, tag_name, query_set=None):
+def _get_post(parser, token, tag_name, query_set=None):
     args = token.split_contents()[1:]
     kwargs = {
         'as': None,
@@ -107,92 +107,95 @@ def _get_news(parser, token, tag_name, query_set=None):
             raise TemplateSyntaxError, "'%s' unknown keyword (got %r)" % (tag_name, key)
     kwargs['name'] = kwargs['as']
     kwargs.pop('as')
-    return GetNewsListNode(**kwargs)
+    return GetPostListNode(**kwargs)
 
 @register.tag
-def get_all_news(parser, token):
+def get_all_post(parser, token, name='get_all_post', post_model=models.Post, translation_model=models.PostTranslation):
     """
-    This will store a list of the news
+    This will store a list of the post
     in the context.
 
     Usage::
 
-        {% get_all_news as news %}
-        {% get_all_news as news paginate_by 25 %}
-        {% get_all_news as news limit 5 %}
-        {% get_all_news as news category 'main'  %}
-        {% get_all_news as news order_by '-date'  %}
+        {% get_all_post as post %}
+        {% get_all_post as post paginate_by 25 %}
+        {% get_all_post as post limit 5 %}
+        {% get_all_post as post category 'main'  %}
+        {% get_all_post as post order_by '-date'  %}
 
-        {% for item in news %}
+        {% for item in post %}
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_all_news', models.News.objects.all)
+    return _get_post(parser, token, name, post_model.objects.all)
 
 @register.tag
-def get_published_news(parser, token):
+def get_published_post(parser, token, name='get_published_post', post_model=models.Post, translation_model=models.PostTranslation):
     """
-    This will store a list of the news
+    This will store a list of the post
     in the context.
 
     Usage::
 
-        {% get_published_news as news %}
-        {% get_published_news as news paginate_by 25 %}
-        {% get_published_news as news limit 5 %}
-        {% get_published_news as news category 'main'  %}
-        {% get_published_news as news order_by '-date'  %}
+        {% get_published_post as post %}
+        {% get_published_post as post paginate_by 25 %}
+        {% get_published_post as post limit 5 %}
+        {% get_published_post as post category 'main'  %}
+        {% get_published_post as post order_by '-date'  %}
 
-        {% for item in news %}
+        {% for item in post %}
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_published_news', models.News.objects.published)
+    return _get_post(parser, token, name, post_model.objects.published)
 
 @register.tag
-def get_draft_news(parser, token):
+def get_draft_post(parser, token, name='get_draft_post', post_model=models.Post, translation_model=models.PostTranslation):
     """
-    This will store a list of the news
+    This will store a list of the post
     in the context.
 
     Usage::
 
-        {% get_draft_news as news %}
-        {% get_draft_news as news paginate_by 25 %}
-        {% get_draft_news as news limit 5 %}
-        {% get_draft_news as news category 'main'  %}
-        {% get_draft_news as news order_by '-date'  %}
+        {% get_draft_post as post %}
+        {% get_draft_post as post paginate_by 25 %}
+        {% get_draft_post as post limit 5 %}
+        {% get_draft_post as post category 'main'  %}
+        {% get_draft_post as post order_by '-date'  %}
 
-        {% for item in news %}
+        {% for item in post %}
         ...
         {% endfor %}
     """
-    return _get_news(parser, token, 'get_draft_news', models.News.objects.draft)
+    return _get_post(parser, token, name, post_model.objects.draft)
 
-class GetNewsNode(template.Node):
-    def __init__(self, name):
+class GetPostNode(template.Node):
+    def __init__(self, name, post_model, translation_model):
         self.name = name
 
     def render(self, context):
         request = context['request']
         slug = context['params']['slug']
-        try:
-            news = models.NewsTranslation.objects.get(slug=slug).news
-        except models.NewsTranslation.DoesNotExist:
-            news = models.News.objects.get(slug=slug)
-        context[self.name] = news
+        if translation_model is not None:
+            try:
+                post = translation_model.objects.get(slug=slug).post
+            except translation_model.DoesNotExist:
+                post = post_model.objects.get(slug=slug)
+        else:
+            post = post_model.objects.get(slug=slug)
+        context[self.name] = post
 
         return ''
 
 @register.tag
-def get_news(parser, token):
+def get_post(parser, token, name='get_post', post_model=models.Post, translation_model=models.PostTranslation):
     """
     Usage::
 
-        {% get_news as news %}
+        {% get_post as post %}
     """
     args = token.split_contents()
     if len(args) < 3:
-        raise TemplateSyntaxError, "'get_news' requires 'as variable' (got %r)" % args
-    return GetNewsNode(args[2])
+        raise TemplateSyntaxError, "'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args }
+    return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)
 

@@ -27,11 +27,6 @@ from django.template.defaultfilters import slugify
 from fluo.models import Q
 from fluo import models
 
-class Category(models.CategoryModel):
-    class Meta:
-        verbose_name = _('News type')
-        verbose_name_plural = _('News types')
-
 DRAFT = 'draft'
 PUBLISHED = 'published'
 
@@ -40,7 +35,7 @@ STATUS_CHOICES = (
     (PUBLISHED, _('Published')),
 )
 
-class NewsManager(models.Manager):
+class PostManager(models.Manager):
     def draft(self):
         return self._filter(status=DRAFT)
     def published(self):
@@ -51,45 +46,38 @@ class NewsManager(models.Manager):
         q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
 
-class News(models.OrderedModel, models.I18NModel):
-    objects = NewsManager()
+class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
+    objects = PostManager()
 
     status = models.StatusField(
         choices=STATUS_CHOICES,
         help_text=_('If should be displayed or not.'),
     )
-    categories = models.ManyToManyField(
-        Category,
-        null=True,
-        blank=True,
-        related_name="news",
-        verbose_name=_('Categories')
-    )
     users = models.ManyToManyField(
         User,
         blank=True,
         null=True,
-        related_name='news',
+        related_name='%(app_label)s-%(class)s-post',
         verbose_name=_('Visible only to'),
-        help_text=_('News visible to these users, if empty is visible to all users.'),
+        help_text=_('Post visible to these users, if empty is visible to all users.'),
     )
     event_date = models.DateTimeField(
         blank=True,
         null=True,
-        verbose_name=_('News date'),
-        help_text=_('Date which news refers to.'),
+        verbose_name=_('Post date'),
+        help_text=_('Date which post refers to.'),
     )
     pub_date_begin = models.DateTimeField(
         blank=True,
         null=True,
         verbose_name=_('Publication date begin'),
-        help_text=_('When news publication date begins.'),
+        help_text=_('When post publication date begins.'),
     )
     pub_date_end = models.DateTimeField(
         blank=True,
         null=True,
         verbose_name=_('Publication date end'),
-        help_text=_('When news publication date ends.'),
+        help_text=_('When post publication date ends.'),
     )
     title = models.CharField(
         unique=True,
@@ -106,7 +94,7 @@ class News(models.OrderedModel, models.I18NModel):
         blank=True,
         null=True,
         verbose_name=_('Abstract'),
-        help_text=_('A brief description of the news'),
+        help_text=_('A brief description of the post'),
     )
     text = models.TextField(
         blank=True,
@@ -119,8 +107,7 @@ class News(models.OrderedModel, models.I18NModel):
     )
 
     class Meta:
-        verbose_name = _("News")
-        verbose_name_plural = _("News")
+        abstract = True
         unique_together = (('title', 'slug',),)
 
     def __unicode__(self):
@@ -133,18 +120,9 @@ class News(models.OrderedModel, models.I18NModel):
             self.event_date = now
         if not self.pub_date_begin and self.status == PUBLISHED:
             self.pub_date_begin = now
-        super(News, self).save(*args, **kwargs)
+        super(PostBase, self).save(*args, **kwargs)
 
-    @models.permalink
-    def get_absolute_url(self):
-        return ('news-detail', (), {'slug': self.translate().slug})
-
-class NewsTranslation(models.TranslationModel):
-    news = models.ForeignKey(
-        News,
-        related_name='translations',
-        verbose_name=_('News type'),
-    )
+class PostBaseTranslation(models.TranslationModel):
     title = models.CharField(
         unique=True,
         max_length=255,
@@ -165,14 +143,46 @@ class NewsTranslation(models.TranslationModel):
     )
 
     class Meta:
-        verbose_name = _("News translation")
-        verbose_name_plural = _("News translations")
-        unique_together = (('news', 'language',), ('title', 'slug',))
-
-    def __unicode__(self):
-        return u'%s (%s)' % (self.news, self.language)
+        abstract = True
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        super(NewsTranslation, self).save(*args, **kwargs)
+        super(PostBaseTranslation, self).save(*args, **kwargs)
+
+class Category(models.CategoryModel):
+    class Meta:
+        verbose_name = _('Post type')
+        verbose_name_plural = _('Post types')
+
+class Post(PostBase):
+    categories = models.ManyToManyField(
+        Category,
+        null=True,
+        blank=True,
+        related_name="post",
+        verbose_name=_('Categories')
+    )
+
+    class Meta:
+        verbose_name = _("Post")
+        verbose_name_plural = _("Post")
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('post-detail', (), {'slug': self.translate().slug})
+
+class PostTranslation(PostBaseTranslation):
+    post = models.ForeignKey(
+        Post,
+        related_name='translations',
+        verbose_name=_('Post type'),
+    )
+
+    class Meta:
+        verbose_name = _("Post translation")
+        verbose_name_plural = _("Post translations")
+        unique_together = (('post', 'language',), ('title', 'slug',))
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.post, self.language)
 
