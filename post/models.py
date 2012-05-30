@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import datetime
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+from django.utils import timezone
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 from fluo.models import Q
 from fluo import models
 
@@ -41,7 +41,7 @@ class PostManager(models.Manager):
     def published(self):
         return self._filter(status=PUBLISHED)
     def _filter(self, status):
-        now = datetime.datetime.now()
+        now = timezone.now()
         q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
         q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
@@ -115,7 +115,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        now = datetime.datetime.now()
+        now = timezone.now()
         if not self.event_date and self.status == PUBLISHED:
             self.event_date = now
         if not self.pub_date_begin and self.status == PUBLISHED:
