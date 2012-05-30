@@ -51,6 +51,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     status = models.StatusField(
         choices=STATUS_CHOICES,
+        default=DRAFT,
         help_text=_('If should be displayed or not.'),
     )
     users = models.ManyToManyField(
