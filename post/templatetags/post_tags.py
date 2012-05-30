@@ -20,12 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import datetime
 from django import template
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.template import TemplateSyntaxError, Library
-from django.conf import settings
-from django.db.models import Q
+from django.template import TemplateSyntaxError
 from post import models
 
 register = template.Library()
@@ -39,7 +36,7 @@ class GetPostListNode(template.Node):
         self.order_by = order_by
         self.paginate_by = paginate_by
 
-    def _paginate(self, request, news_list, paginate_by):
+    def _paginate(self, request, post_list, paginate_by):
         paginator = Paginator(post_list, paginate_by)
 
         try:
@@ -172,17 +169,18 @@ def get_draft_post(parser, token, name='get_draft_post', post_model=models.Post,
 class GetPostNode(template.Node):
     def __init__(self, name, post_model, translation_model):
         self.name = name
+        self.post_model = post_model
+        self.translation_model = translation_model
 
     def render(self, context):
-        request = context['request']
         slug = context['params']['slug']
-        if translation_model is not None:
+        if self.translation_model is not None:
             try:
-                post = translation_model.objects.get(slug=slug).post
-            except translation_model.DoesNotExist:
-                post = post_model.objects.get(slug=slug)
+                post = self.translation_model.objects.get(slug=slug).post
+            except self.translation_model.DoesNotExist:
+                post = self.post_model.objects.get(slug=slug)
         else:
-            post = post_model.objects.get(slug=slug)
+            post = self.post_model.objects.get(slug=slug)
         context[self.name] = post
 
         return ''
