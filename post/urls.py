@@ -25,6 +25,7 @@ from post import views
 
 urlpatterns = patterns('',
     url(r'^$', views.ListView(), name='post-list'),
-    url(r'^(?P<slug>.*)/$', views.DetailView(), name='post-detail'),
+    url(r'^(?P<slug>.+)?token=(?P<token>.{36})$', views.PreviewView(), name='post-preview'),
+    url(r'^(?P<slug>.+)$', views.DetailView(), name='post-detail'),
 )
 

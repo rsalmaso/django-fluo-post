@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import get_object_or_404, render
 from fluo.views import View
@@ -67,6 +68,30 @@ class DetailView(View):
                 post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
         else:
             post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
+        return render(
+            request,
+            self.template_name,
+            { 'post': post },
+        )
+
+class PreviewView(View):
+    post_model = Post
+    translation_model = PostTranslation
+    template_name = 'post/detail.html'
+
+    def get(self, request, slug):
+        token = request.GET.get('token', None)
+
+        if not token:
+            raise Http404
+
+        if self.translation_model is not None:
+            try:
+                post = self.translation_model.objects.get(slug=slug, uuid=token).parent
+            except self.translation_model.DoesNotExist:
+                post = get_object_or_404(self.post_model, slug=slug, uuid=token)
+        else:
+            post = get_object_or_404(self.post_model, slug=slug, uuid=token)
         return render(
             request,
             self.template_name,
