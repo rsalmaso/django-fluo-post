@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from uuid import uuid1
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.template.defaultfilters import slugify
@@ -49,6 +50,13 @@ class PostManager(models.Manager):
 class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
     objects = PostManager()
 
+    uuid = models.CharField(
+        max_length=36,
+        blank=True,
+        null=True,
+        verbose_name=_('uuid field'),
+        help_text=_('for preview.'),
+    )
     status = models.StatusField(
         choices=STATUS_CHOICES,
         default=DRAFT,
@@ -129,6 +137,8 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
             self.event_date = now
         if not self.pub_date_begin and self.status == PUBLISHED:
             self.pub_date_begin = now
+        if not self.uuid:
+            self.uuid = uuid1()
         super(PostBase, self).save(*args, **kwargs)
 
 class PostBaseTranslation(models.TranslationModel):
