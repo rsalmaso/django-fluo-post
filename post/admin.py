@@ -82,6 +82,10 @@ class PostBaseAdmin(admin.OrderedModelAdmin):
             return _(u'All')
     _get_users.short_description = _('Show to')
 
+    def save_model(self, request, obj, form, change):
+        if request.user.is_authenticated() and not obj.owner:
+            obj.owner = request.user
+        super(PostBaseAdmin, self).save(request, obj, form, change)
 
 class PostAdmin(PostBaseAdmin):
     model = Post
