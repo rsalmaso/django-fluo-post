@@ -173,7 +173,7 @@ class Post(PostBase):
         return ('post-detail', (), {'slug': self.translate().slug})
 
 class PostTranslation(PostBaseTranslation):
-    post = models.ForeignKey(
+    parent = models.ForeignKey(
         Post,
         related_name='translations',
         verbose_name=_('Post type'),
@@ -182,8 +182,8 @@ class PostTranslation(PostBaseTranslation):
     class Meta:
         verbose_name = _("Post translation")
         verbose_name_plural = _("Post translations")
-        unique_together = (('post', 'language',), ('title', 'slug',))
+        unique_together = (('parent', 'language',), ('title', 'slug',))
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.post, self.language)
+        return u'%s (%s)' % (self.parent, self.language)
 

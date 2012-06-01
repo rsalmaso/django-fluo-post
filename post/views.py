@@ -62,7 +62,7 @@ class DetailView(View):
     def get(self, request, slug):
         if self.translation_model is not None:
             try:
-                post = self.translation_model.objects.get(slug=slug).post
+                post = self.translation_model.objects.get(slug=slug).parent
             except self.translation_model.DoesNotExist:
                 post = get_object_or_404(self.post_model, slug=slug)
         else:
