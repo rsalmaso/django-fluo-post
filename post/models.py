@@ -54,6 +54,14 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         default=DRAFT,
         help_text=_('If should be displayed or not.'),
     )
+    owner = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        related_name='%(app_label)s-%(class)s-owned',
+        verbose_name=_('owned by'),
+        help_text=_('Post owner.'),
+    )
     users = models.ManyToManyField(
         User,
         blank=True,
