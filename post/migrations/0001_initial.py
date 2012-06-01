@@ -1,20 +1,41 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2007-2012, Raffaele Salmaso <raffaele@salmaso.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
         # Adding model 'Category'
         db.create_table('post_category', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('status', self.gf('fluo.models.fields.StatusField')()),
             ('ordering', self.gf('fluo.models.fields.OrderField')(default=0, blank=True)),
             ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=50, db_index=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=50)),
             ('default', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('post', ['Category'])
@@ -25,12 +46,12 @@ class Migration(SchemaMigration):
             ('ordering', self.gf('fluo.models.fields.OrderField')(default=0, blank=True)),
             ('created_at', self.gf('fluo.models.fields.CreationDateTimeField')(default=datetime.datetime.now, blank=True)),
             ('last_modified_at', self.gf('fluo.models.fields.ModificationDateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('status', self.gf('fluo.models.fields.StatusField')()),
+            ('status', self.gf('fluo.models.fields.StatusField')(default='draft')),
             ('event_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('pub_date_begin', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('pub_date_end', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('title', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255, db_index=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255)),
             ('abstract', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('note', self.gf('django.db.models.fields.TextField')(blank=True)),
@@ -58,27 +79,25 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('language', self.gf('django.db.models.fields.CharField')(max_length=5, db_index=True)),
             ('title', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255, db_index=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255)),
             ('abstract', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('text', self.gf('django.db.models.fields.TextField')()),
-            ('post', self.gf('django.db.models.fields.related.ForeignKey')(related_name='translations', to=orm['post.Post'])),
+            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(related_name='translations', to=orm['post.Post'])),
         ))
         db.send_create_signal('post', ['PostTranslation'])
 
-        # Adding unique constraint on 'PostTranslation', fields ['post', 'language']
-        db.create_unique('post_posttranslation', ['post_id', 'language'])
+        # Adding unique constraint on 'PostTranslation', fields ['parent', 'language']
+        db.create_unique('post_posttranslation', ['parent_id', 'language'])
 
         # Adding unique constraint on 'PostTranslation', fields ['title', 'slug']
         db.create_unique('post_posttranslation', ['title', 'slug'])
 
-
     def backwards(self, orm):
-        
         # Removing unique constraint on 'PostTranslation', fields ['title', 'slug']
         db.delete_unique('post_posttranslation', ['title', 'slug'])
 
-        # Removing unique constraint on 'PostTranslation', fields ['post', 'language']
-        db.delete_unique('post_posttranslation', ['post_id', 'language'])
+        # Removing unique constraint on 'PostTranslation', fields ['parent', 'language']
+        db.delete_unique('post_posttranslation', ['parent_id', 'language'])
 
         # Deleting model 'Category'
         db.delete_table('post_category')
@@ -94,7 +113,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'PostTranslation'
         db.delete_table('post_posttranslation')
-
 
     models = {
         'auth.group': {
@@ -139,7 +157,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'ordering': ('fluo.models.fields.OrderField', [], {'default': '0', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50', 'db_index': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50'}),
             'status': ('fluo.models.fields.StatusField', [], {})
         },
         'post.post': {
@@ -154,19 +172,19 @@ class Migration(SchemaMigration):
             'ordering': ('fluo.models.fields.OrderField', [], {'default': '0', 'blank': 'True'}),
             'pub_date_begin': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'pub_date_end': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
-            'status': ('fluo.models.fields.StatusField', [], {}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255'}),
+            'status': ('fluo.models.fields.StatusField', [], {'default': "'draft'"}),
             'text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'post-post-post'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['auth.User']"})
         },
         'post.posttranslation': {
-            'Meta': {'unique_together': "(('post', 'language'), ('title', 'slug'))", 'object_name': 'PostTranslation'},
+            'Meta': {'unique_together': "(('parent', 'language'), ('title', 'slug'))", 'object_name': 'PostTranslation'},
             'abstract': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'language': ('django.db.models.fields.CharField', [], {'max_length': '5', 'db_index': 'True'}),
-            'post': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'translations'", 'to': "orm['post.Post']"}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'translations'", 'to': "orm['post.Post']"}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255'}),
             'text': ('django.db.models.fields.TextField', [], {}),
             'title': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
         }
