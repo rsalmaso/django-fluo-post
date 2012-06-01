@@ -66,7 +66,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         User,
         blank=True,
         null=True,
-        related_name='%(app_label)s-%(class)s-post',
+        related_name='%(app_label)s-%(class)s-visible',
         verbose_name=_('Visible only to'),
         help_text=_('Post visible to these users, if empty is visible to all users.'),
     )
