@@ -55,10 +55,8 @@ class PostAdminForm(forms.ModelForm):
             self.fields['text'].widget = TinyMCE()
         except ImportError:
             pass
-class PostAdmin(admin.OrderedModelAdmin):
-    model = Post
-    form = PostAdminForm
-    list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_categories', '_get_users',)
+class PostBaseAdmin(admin.OrderedModelAdmin):
+    list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_users',)
     list_display_links = ('__unicode__',)
     list_per_page = 30
     ordering = ("ordering",)
@@ -75,8 +73,6 @@ class PostAdmin(admin.OrderedModelAdmin):
         ),}),
         (_('Show to'), {'fields': ('users',),}),
     )
-    filter_horizontal = ('users', 'categories',)
-    inlines = (PostTranslationInline,)
 
     def _get_users(self, obj):
         users = self.users.all().order_by('username')
@@ -86,6 +82,13 @@ class PostAdmin(admin.OrderedModelAdmin):
             return _(u'All')
     _get_users.short_description = _('Show to')
 
+
+class PostAdmin(PostBaseAdmin):
+    model = Post
+    form = PostAdminForm
+    list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_categories', '_get_users',)
+    filter_horizontal = ('users', 'categories',)
+    inlines = (PostTranslationInline,)
     def _get_categories(self, obj):
         categories = self.categories.all().order_by('name')
         if categories:
