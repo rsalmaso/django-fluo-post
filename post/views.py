@@ -23,7 +23,7 @@
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import get_object_or_404, render
 from fluo.views import View
-from post.models import Post, PostTranslation
+from post.models import Post, PostTranslation, PUBLISHED
 
 class ListView(View):
     paginate_by = 25
@@ -62,11 +62,11 @@ class DetailView(View):
     def get(self, request, slug):
         if self.translation_model is not None:
             try:
-                post = self.translation_model.objects.get(slug=slug).parent
+                post = self.translation_model.objects.get(slug=slug, parent__status=PUBLISHED).parent
             except self.translation_model.DoesNotExist:
-                post = get_object_or_404(self.post_model, slug=slug)
+                post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
         else:
-            post = get_object_or_404(self.post_model, slug=slug)
+            post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
         return render(
             request,
             self.template_name,
