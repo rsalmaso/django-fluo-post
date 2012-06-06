@@ -85,7 +85,7 @@ class PostBaseAdmin(admin.OrderedModelAdmin):
     def save_model(self, request, obj, form, change):
         if request.user.is_authenticated() and not obj.owner:
             obj.owner = request.user
-        super(PostBaseAdmin, self).save(request, obj, form, change)
+        super(PostBaseAdmin, self).save_model(request, obj, form, change)
 
 class PostAdmin(PostBaseAdmin):
     model = Post
