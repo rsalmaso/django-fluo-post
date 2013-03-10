@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
 from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import get_object_or_404, render

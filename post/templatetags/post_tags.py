@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
 from django import template
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template import TemplateSyntaxError

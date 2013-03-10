@@ -20,11 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
 from uuid import uuid1
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 from django.template.defaultfilters import slugify
-from django.contrib.auth.models import User
 from fluo.models import Q
 from fluo import models
 
@@ -41,12 +43,21 @@ class PostManager(models.Manager):
         return self._filter(status=DRAFT)
     def published(self):
         return self._filter(status=PUBLISHED)
+    def last(self, **kwargs):
+        try:
+            query = self.published()
+            if query:
+                query = self.filter(**kwargs)
+            return query.order_by('pub_date_begin')[0]
+        except (self.model.DoesNotExist, IndexError):
+            raise self.model.DoesNotExist
     def _filter(self, status):
         now = timezone.now()
         q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
         q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
 
+@python_2_unicode_compatible
 class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
     objects = PostManager()
 
@@ -63,7 +74,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         help_text=_('If should be displayed or not.'),
     )
     owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
         related_name='%(app_label)s-%(class)s-owned',
@@ -71,7 +82,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         help_text=_('Post owner.'),
     )
     users = models.ManyToManyField(
-        User,
+        settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
         related_name='%(app_label)s-%(class)s-visible',
@@ -127,7 +138,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         abstract = True
         unique_together = (('title', 'slug',),)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
@@ -190,6 +201,7 @@ class Post(PostBase):
     def get_absolute_url(self):
         return ('post-detail', (), {'slug': self.translate().slug})
 
+@python_2_unicode_compatible
 class PostTranslation(PostBaseTranslation):
     parent = models.ForeignKey(
         Post,
@@ -202,6 +214,6 @@ class PostTranslation(PostBaseTranslation):
         verbose_name_plural = _("Post translations")
         unique_together = (('parent', 'language',), ('title', 'slug',))
 
-    def __unicode__(self):
-        return u'%s (%s)' % (self.parent, self.language)
+    def __str__(self):
+        return '%s (%s)' % (self.parent, self.language)
 
