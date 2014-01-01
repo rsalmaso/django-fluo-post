@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2007-2013, Raffaele Salmaso <raffaele@salmaso.org>
+# Copyright (C) 2007-2014, Raffaele Salmaso <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 from django.template.defaultfilters import slugify
-from fluo.models import Q
-from fluo import models
+from fluo.db.models import Q
+from fluo.db import models
 
 DRAFT = 'draft'
 PUBLISHED = 'published'
