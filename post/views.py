@@ -41,8 +41,11 @@ class ListView(PostView):
     translation_model = None
     template_name = 'post/list.html'
 
+    def get_queryset(self, request):
+        return self.post_model.objects.published()
+
     def get(self, request):
-        post_list = self.post_model.objects.published()
+        post_list = self.get_queryset(request)
         if self.order_by:
             post_list = post_list.order_by(*self.order_by)
         paginator = Paginator(post_list, self.paginate_by)
