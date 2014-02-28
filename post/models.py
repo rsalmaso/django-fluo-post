@@ -30,13 +30,16 @@ from django.template.defaultfilters import slugify
 from fluo.db.models import Q
 from fluo.db import models
 
+
 DRAFT = 'draft'
 PUBLISHED = 'published'
+
 
 STATUS_CHOICES = (
     (DRAFT, _('Draft')),
     (PUBLISHED, _('Published')),
 )
+
 
 class PostManager(models.Manager):
     def draft(self):
@@ -56,6 +59,7 @@ class PostManager(models.Manager):
         q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
         q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
+
 
 @python_2_unicode_compatible
 class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
@@ -152,6 +156,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
             self.uuid = uuid1()
         super(PostBase, self).save(*args, **kwargs)
 
+
 class PostBaseTranslation(models.TranslationModel):
     title = models.CharField(
         unique=True,
@@ -178,42 +183,3 @@ class PostBaseTranslation(models.TranslationModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(PostBaseTranslation, self).save(*args, **kwargs)
-
-class Category(models.CategoryModel):
-    class Meta:
-        verbose_name = _('Post type')
-        verbose_name_plural = _('Post types')
-
-class Post(PostBase):
-    categories = models.ManyToManyField(
-        Category,
-        null=True,
-        blank=True,
-        related_name="post",
-        verbose_name=_('Categories')
-    )
-
-    class Meta:
-        verbose_name = _("Post")
-        verbose_name_plural = _("Post")
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('post-detail', (), {'slug': self.translate().slug})
-
-@python_2_unicode_compatible
-class PostTranslation(PostBaseTranslation):
-    parent = models.ForeignKey(
-        Post,
-        related_name='translations',
-        verbose_name=_('Post type'),
-    )
-
-    class Meta:
-        verbose_name = _("Post translation")
-        verbose_name_plural = _("Post translations")
-        unique_together = (('parent', 'language',), ('title', 'slug',))
-
-    def __str__(self):
-        return '%s (%s)' % (self.parent, self.language)
-

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2007-2014, Raffaele Salmaso <raffaele@salmaso.org>
+# Copyright (C) 2007-2014, Salmaso Raffaele <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,20 @@ from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import get_object_or_404, render
 from fluo.views import View
-from post.models import Post, PostTranslation, PUBLISHED
+from .models import PUBLISHED
 
-class ListView(View):
+
+class PostView(View):
+    def process_context(self, request, context=None):
+        context = {} if context is None else context
+        return context
+
+
+class ListView(PostView):
     paginate_by = 25
     order_by = None
-    post_model = Post
-    translation_model = PostTranslation
+    post_model = None
+    translation_model = None
     template_name = 'post/list.html'
 
     def get(self, request):
@@ -39,6 +46,10 @@ class ListView(View):
         if self.order_by:
             post_list = post_list.order_by(*self.order_by)
         paginator = Paginator(post_list, self.paginate_by)
+
+        context = self.process_context(request, {
+            'post': post_list,
+        })
 
         try:
             page = int(request.GET.get('page', '1'))
@@ -50,18 +61,21 @@ class ListView(View):
         except (EmptyPage, InvalidPage):
             post = paginator.page(paginator.num_pages)
 
+        context['post'] = post
+
         return render(
             request,
             self.template_name,
-            { 'post': post },
+            context,
         )
 
-class DetailView(View):
-    post_model = Post
-    translation_model = PostTranslation
+
+class DetailView(PostView):
+    post_model = None
+    translation_model = None
     template_name = 'post/detail.html'
 
-    def get(self, request, slug):
+    def get_post(self, request, slug):
         if self.translation_model is not None:
             try:
                 post = self.translation_model.objects.get(slug=slug, parent__status=PUBLISHED).parent
@@ -69,33 +83,27 @@ class DetailView(View):
                 post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
         else:
             post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
+        return post
+
+    def get(self, request, slug):
+        post = self.get_post(request, slug)
+
+        context = self.process_context(request, {
+            'post': post,
+        })
+
         return render(
             request,
             self.template_name,
-            { 'post': post },
+            context,
         )
 
-class PreviewView(View):
-    post_model = Post
-    translation_model = PostTranslation
-    template_name = 'post/detail.html'
 
+class PreviewView(DetailView):
     def get(self, request, slug):
         token = request.GET.get('token', None)
 
         if not token:
             raise Http404
 
-        if self.translation_model is not None:
-            try:
-                post = self.translation_model.objects.get(slug=slug, uuid=token).parent
-            except self.translation_model.DoesNotExist:
-                post = get_object_or_404(self.post_model, slug=slug, uuid=token)
-        else:
-            post = get_object_or_404(self.post_model, slug=slug, uuid=token)
-        return render(
-            request,
-            self.template_name,
-            { 'post': post },
-        )
-
+        return super(PreviewView, self).get(request, slug)

@@ -25,44 +25,28 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from fluo import admin
 from fluo import forms
-from post.models import Post, Category, PostTranslation
+
 
 MAX_LANGUAGES = len(settings.LANGUAGES)
 
-class CategoryAdminForm(forms.ModelForm):
-    class Meta:
-        model = Category
-class CategoryAdmin(admin.CategoryModelAdmin):
-    model = Category
-    form = CategoryAdminForm
-admin.site.register(Category, CategoryAdmin)
 
 class PostTranslationInlineModelForm(forms.ModelForm):
-    class Meta:
-        model = PostTranslation
+    pass
 class PostTranslationInline(admin.TabularInline):
-    model = PostTranslation
     form = PostTranslationInlineModelForm
     extra = MAX_LANGUAGES
     max_num = MAX_LANGUAGES
     fields = ('language', 'title', 'abstract', 'text',)
+
+
 class PostAdminForm(forms.ModelForm):
-    class Meta:
-        model =  Post
-    def __init__(self, *args, **kwargs):
-        super(PostAdminForm, self).__init__(*args, **kwargs)
-        try:
-            from tinymce.widgets import TinyMCE
-            self.fields['text'].widget = TinyMCE()
-        except ImportError:
-            pass
+    pass
 class PostBaseAdmin(admin.OrderedModelAdmin):
     list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_users',)
     list_display_links = ('__unicode__',)
     list_per_page = 30
     ordering = ("ordering",)
     fieldsets = (
-        #(_('Detail'), {'fields': ('created_at', 'last_modified_at'), 'classes': ('collapse',),}),
         (None, {"fields": (
             ('status', 'ordering',),
             'title',
@@ -87,20 +71,3 @@ class PostBaseAdmin(admin.OrderedModelAdmin):
         if request.user.is_authenticated() and not obj.owner:
             obj.owner = request.user
         super(PostBaseAdmin, self).save_model(request, obj, form, change)
-
-class PostAdmin(PostBaseAdmin):
-    model = Post
-    form = PostAdminForm
-    list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_categories', '_get_users',)
-    filter_horizontal = ('users', 'categories',)
-    inlines = (PostTranslationInline,)
-    def _get_categories(self, obj):
-        categories = self.categories.all().order_by('name')
-        if categories:
-            return u', '.join([category.name for category in categories])
-        else:
-            return _(u'All')
-    _get_categories.short_description = _('Categories')
-
-admin.site.register(Post, PostAdmin)
-

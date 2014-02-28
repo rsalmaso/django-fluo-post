@@ -24,9 +24,10 @@ from __future__ import unicode_literals
 from django import template
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.template import TemplateSyntaxError
-from post import models
+
 
 register = template.Library()
+
 
 class GetPostListNode(template.Node):
     def __init__(self, name, category=None, order_by=None, limit=None, query_set=None, paginate_by=False):
@@ -71,6 +72,7 @@ class GetPostListNode(template.Node):
         context[self.name] = post
         return ''
 
+
 def _get_post(parser, token, tag_name, query_set=None):
     args = token.split_contents()[1:]
     kwargs = {
@@ -107,8 +109,9 @@ def _get_post(parser, token, tag_name, query_set=None):
     kwargs.pop('as')
     return GetPostListNode(**kwargs)
 
+
 @register.tag
-def get_all_post(parser, token, name='get_all_post', post_model=models.Post, translation_model=models.PostTranslation):
+def get_all_post(parser, token, name='get_all_post', post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -127,8 +130,9 @@ def get_all_post(parser, token, name='get_all_post', post_model=models.Post, tra
     """
     return _get_post(parser, token, name, post_model.objects.all)
 
+
 @register.tag
-def get_published_post(parser, token, name='get_published_post', post_model=models.Post, translation_model=models.PostTranslation):
+def get_published_post(parser, token, name='get_published_post', post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -147,8 +151,9 @@ def get_published_post(parser, token, name='get_published_post', post_model=mode
     """
     return _get_post(parser, token, name, post_model.objects.published)
 
+
 @register.tag
-def get_draft_post(parser, token, name='get_draft_post', post_model=models.Post, translation_model=models.PostTranslation):
+def get_draft_post(parser, token, name='get_draft_post', post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -166,6 +171,7 @@ def get_draft_post(parser, token, name='get_draft_post', post_model=models.Post,
         {% endfor %}
     """
     return _get_post(parser, token, name, post_model.objects.draft)
+
 
 class GetPostNode(template.Node):
     def __init__(self, name, post_model, translation_model):
@@ -186,8 +192,9 @@ class GetPostNode(template.Node):
 
         return ''
 
+
 @register.tag
-def get_post(parser, token, name='get_post', post_model=models.Post, translation_model=models.PostTranslation):
+def get_post(parser, token, name='get_post', post_model=None, translation_model=None):
     """
     Usage::
 
@@ -197,4 +204,3 @@ def get_post(parser, token, name='get_post', post_model=models.Post, translation
     if len(args) < 3:
         raise TemplateSyntaxError, "'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args }
     return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)
-
