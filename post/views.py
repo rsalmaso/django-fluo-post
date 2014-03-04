@@ -40,18 +40,19 @@ class ListView(PostView):
     post_model = None
     translation_model = None
     template_name = 'post/list.html'
+    object_list_name = 'post_list'
 
     def get_queryset(self, request):
         return self.post_model.objects.published()
 
     def get(self, request):
-        post_list = self.get_queryset(request)
+        object_list = self.get_queryset(request)
         if self.order_by:
-            post_list = post_list.order_by(*self.order_by)
-        paginator = Paginator(post_list, self.paginate_by)
+            object_list = object_list.order_by(*self.order_by)
+        paginator = Paginator(object_list, self.paginate_by)
 
         context = self.process_context(request, {
-            'post': post_list,
+            self.object_list_name: object_list,
         })
 
         try:
@@ -60,11 +61,11 @@ class ListView(PostView):
             page = 1
 
         try:
-            post = paginator.page(page)
+            post_list = paginator.page(page)
         except (EmptyPage, InvalidPage):
-            post = paginator.page(paginator.num_pages)
+            post_list = paginator.page(paginator.num_pages)
 
-        context['post'] = post
+        context[self.object_list_name] = post_list
 
         return render(
             request,
@@ -77,6 +78,7 @@ class DetailView(PostView):
     post_model = None
     translation_model = None
     template_name = 'post/detail.html'
+    object_name = 'post'
 
     def get_post(self, request, slug):
         if self.translation_model is not None:
@@ -92,7 +94,7 @@ class DetailView(PostView):
         post = self.get_post(request, slug)
 
         context = self.process_context(request, {
-            'post': post,
+            self.object_name: post,
         })
 
         return render(
