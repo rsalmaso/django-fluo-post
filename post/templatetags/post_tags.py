@@ -86,9 +86,9 @@ def _get_post(parser, token, tag_name, query_set=None):
     kw = kwargs.keys()
 
     if len(args) < 2:
-        raise TemplateSyntaxError, "'%s' requires at least 'as variable' (got %r)" % (tag_name, args)
+        raise TemplateSyntaxError("'%s' requires at least 'as variable' (got %r)" % (tag_name, args))
     elif len(args) % 2 != 0:
-        raise TemplateSyntaxError, "'%s' requires 'as variable' (got %r)" % (tag_name, args)
+        raise TemplateSyntaxError("'%s' requires 'as variable' (got %r)" % (tag_name, args))
     i = 0
     while i < len(args):
         key = args[i]
@@ -97,14 +97,14 @@ def _get_post(parser, token, tag_name, query_set=None):
             if key in ('limit', 'paginate_by'):
                 try:
                     value = int(value)
-                except ValueError, err:
-                    raise TemplateSyntaxError, "'%s' requires 'limit' to be a valid integer (got %r): %s" % (tag_name, value, err)
+                except ValueError as err:
+                    raise TemplateSyntaxError("'%s' requires 'limit' to be a valid integer (got %r): %s" % (tag_name, value, err))
             elif key in ('order_by', 'category',):
                 value = value.split(',')
             kwargs[key] = value
             i += 2
         else:
-            raise TemplateSyntaxError, "'%s' unknown keyword (got %r)" % (tag_name, key)
+            raise TemplateSyntaxError("'%s' unknown keyword (got %r)" % (tag_name, key))
     kwargs['name'] = kwargs['as']
     kwargs.pop('as')
     return GetPostListNode(**kwargs)
@@ -202,5 +202,5 @@ def get_post(parser, token, name='get_post', post_model=None, translation_model=
     """
     args = token.split_contents()
     if len(args) < 3:
-        raise TemplateSyntaxError, "'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args }
+        raise TemplateSyntaxError("'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args })
     return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)
