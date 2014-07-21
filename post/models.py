@@ -44,8 +44,10 @@ STATUS_CHOICES = (
 class PostManager(models.Manager):
     def draft(self):
         return self._filter(status=DRAFT)
+
     def published(self):
         return self._filter(status=PUBLISHED)
+
     def last(self, **kwargs):
         try:
             query = self.published()
@@ -54,6 +56,7 @@ class PostManager(models.Manager):
             return query.order_by('pub_date_begin')[0]
         except (self.model.DoesNotExist, IndexError):
             raise self.model.DoesNotExist
+
     def _filter(self, status):
         now = timezone.now()
         q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
@@ -155,6 +158,24 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         if not self.uuid:
             self.uuid = uuid1()
         super(PostBase, self).save(*args, **kwargs)
+
+    @property
+    def next(self):
+        posts = self._default_manager.filter(status=self.status, pub_date_begin__gt=self.pub_date_begin)
+        try:
+            post = posts[0]
+        except:
+            post = None
+        return post
+
+    @property
+    def prev(self):
+        posts = self._default_manager.filter(status=self.status, pub_date_begin__lt=self.pub_date_begin)
+        try:
+            post = posts[0]
+        except:
+            post = None
+        return post
 
 
 class PostBaseTranslation(models.TranslationModel):
