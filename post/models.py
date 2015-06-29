@@ -203,3 +203,14 @@ class PostBaseTranslation(models.TranslationModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(PostBaseTranslation, self).save(*args, **kwargs)
+
+
+if "comments" in settings.INSTALLED_APPS:
+    class PostCommentBase(PostBase):
+        can_comment = models.BooleanField(
+            default=True,
+            verbose_name=_("can comment"),
+        )
+
+        class Meta:
+            abstract = True

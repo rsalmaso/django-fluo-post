@@ -71,3 +71,19 @@ class PostBaseAdmin(admin.OrderedModelAdmin):
         if request.user.is_authenticated() and not obj.owner:
             obj.owner = request.user
         super(PostBaseAdmin, self).save_model(request, obj, form, change)
+
+
+class PostCommentBaseAdmin(PostBaseAdmin):
+    list_display = ["__str__", "status", "can_comment", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
+    fieldsets = [
+        [None, {"fields": [
+            ("status", "ordering"),
+            "title",
+            "event_date",
+            ("pub_date_begin", "pub_date_end"),
+            "abstract",
+            "text",
+            "note",
+        ]}],
+        [_("Show to"), {"fields": ["users"]}],
+    ]

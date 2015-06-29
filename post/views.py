@@ -21,8 +21,9 @@
 # THE SOFTWARE.
 
 from __future__ import unicode_literals
-from django.http import Http404
+from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from fluo.views import View
 from .models import PUBLISHED
@@ -102,6 +103,49 @@ class DetailView(PostView):
             self.template_name,
             context,
         )
+
+
+if "comments" in settings.INSTALLED_APPS:
+    from comments.forms import CommentForm, ModerateForm, HandleForm, Type
+
+    class DetailView(DetailView):
+        def get_comments(self, request, context):
+            raise NotImplemented
+
+        def process_context(self, request, context=None):
+            context = super(DetailView, self).process_context(request, context)
+            context['comments'] = self.get_comments(request, context)
+            context['form'] = CommentForm(initial={'type': Type.COMMENT}, user=request.user)
+            context['HANDLE'] = Type.HANDLE
+            context['MODERATE'] = Type.MODERATE
+            context['COMMENT'] = Type.COMMENT
+            return context
+
+        def post(self, request, slug, *args, **kwargs):
+            post = self.get_post(request, slug)
+            context = self.process_context(request, {
+                'post': post,
+            })
+            type = request.POST.get('type')
+            if type == Type.COMMENT:
+                form = CommentForm(request.POST, request.user)
+                if form.is_valid():
+                    form.save(request, post)
+                else:
+                    context['form'] = form
+            elif type == Type.MODERATE:
+                form = ModerateForm(request.POST)
+                if form.is_valid():
+                    form.save(request, post)
+            elif type == Type.HANDLE:
+                form = HandleForm(request.POST)
+                if form.is_valid():
+                    form.save(request, post)
+            return render(
+                request,
+                self.template_name,
+                context,
+            )
 
 
 class PreviewView(DetailView):
