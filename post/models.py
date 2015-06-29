@@ -84,7 +84,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
-        related_name='%(app_label)s-%(class)s-owned',
+        related_name='%(app_label)s_%(class)s_owned',
         verbose_name=_('owned by'),
         help_text=_('Post owner.'),
     )
