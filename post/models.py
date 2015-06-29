@@ -91,8 +91,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
-        null=True,
-        related_name='%(app_label)s-%(class)s-visible',
+        related_name='%(app_label)s_%(class)s_visible',
         verbose_name=_('Visible only to'),
         help_text=_('Post visible to these users, if empty is visible to all users.'),
     )
