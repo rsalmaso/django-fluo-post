@@ -36,36 +36,36 @@ class PostTranslationInline(admin.TabularInline):
     form = PostTranslationInlineModelForm
     extra = MAX_LANGUAGES
     max_num = MAX_LANGUAGES
-    fields = ('language', 'title', 'abstract', 'text',)
+    fields = ["language", "title", "abstract", "text"]
 
 
 class PostAdminForm(forms.ModelForm):
     pass
 class PostBaseAdmin(admin.OrderedModelAdmin):
-    list_display = ('__unicode__', 'status', 'event_date', 'pub_date_begin', 'pub_date_end', '_get_users',)
-    list_display_links = ('__unicode__',)
+    list_display = ["__str__", "status", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
+    list_display_links = ["__str__"]
     list_per_page = 30
-    ordering = ("ordering",)
-    fieldsets = (
-        (None, {"fields": (
-            ('status', 'ordering',),
-            'title',
-            'event_date',
-            ('pub_date_begin', 'pub_date_end',),
-            'abstract',
-            'text',
-            'note',
-        ),}),
-        (_('Show to'), {'fields': ('users',),}),
-    )
+    ordering = ["ordering"]
+    fieldsets = [
+        [None, {"fields": [
+            ("status", "ordering",),
+            "title",
+            "event_date",
+            ("pub_date_begin", "pub_date_end",),
+            "abstract",
+            "text",
+            "note",
+        ]}],
+        [_("Show to"), {"fields": ["users"]}],
+    ]
 
     def _get_users(self, obj):
-        users = self.users.all().order_by('username')
+        users = self.users.all().order_by("username")
         if users:
-            return u', '.join([user.username for user in users])
+            return ", ".join([user.username for user in users])
         else:
-            return _(u'All')
-    _get_users.short_description = _('Show to')
+            return _("All")
+    _get_users.short_description = _("Show to")
 
     def save_model(self, request, obj, form, change):
         if request.user.is_authenticated() and not obj.owner:
