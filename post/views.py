@@ -109,13 +109,17 @@ if "comments" in settings.INSTALLED_APPS:
     from comments.forms import CommentForm, ModerateForm, HandleForm, Type
 
     class DetailView(DetailView):
+        moderation_form = ModerateForm
+        comment_form = CommentForm
+        handle_form = HandleForm
+
         def get_comments(self, request, context):
             raise NotImplemented
 
         def process_context(self, request, context=None):
             context = super(DetailView, self).process_context(request, context)
             context['comments'] = self.get_comments(request, context)
-            context['form'] = CommentForm(initial={'type': Type.COMMENT}, user=request.user)
+            context['form'] = self.comment_form(initial={'type': Type.COMMENT}, user=request.user)
             context['HANDLE'] = Type.HANDLE
             context['MODERATE'] = Type.MODERATE
             context['COMMENT'] = Type.COMMENT
@@ -128,17 +132,17 @@ if "comments" in settings.INSTALLED_APPS:
             })
             type = request.POST.get('type')
             if type == Type.COMMENT:
-                form = CommentForm(request.POST, request.user)
+                form = self.comment_form(request.POST, request.user)
                 if form.is_valid():
                     form.save(request, post)
                 else:
                     context['form'] = form
             elif type == Type.MODERATE:
-                form = ModerateForm(request.POST)
+                form = self.moderation_form(request.POST)
                 if form.is_valid():
                     form.save(request, post)
             elif type == Type.HANDLE:
-                form = HandleForm(request.POST)
+                form = self.handle_form(request.POST)
                 if form.is_valid():
                     form.save(request, post)
             return render(
