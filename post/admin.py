@@ -41,7 +41,7 @@ class PostTranslationInline(admin.TabularInline):
 
 class PostAdminForm(forms.ModelForm):
     pass
-class PostBaseAdmin(admin.OrderedModelAdmin):
+class PostModelAdmin(admin.OrderedModelAdmin):
     list_display = ["__str__", "status", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
     list_display_links = ["__str__"]
     list_per_page = 30
@@ -70,10 +70,10 @@ class PostBaseAdmin(admin.OrderedModelAdmin):
     def save_model(self, request, obj, form, change):
         if request.user.is_authenticated() and not obj.owner:
             obj.owner = request.user
-        super(PostBaseAdmin, self).save_model(request, obj, form, change)
+        super(PostModelAdmin, self).save_model(request, obj, form, change)
 
 
-class PostCommentBaseAdmin(PostBaseAdmin):
+class PostCommentModelAdmin(PostModelAdmin):
     list_display = ["__str__", "status", "can_comment", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
     fieldsets = [
         [None, {"fields": [

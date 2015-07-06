@@ -65,7 +65,7 @@ class PostManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
+class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     objects = PostManager()
 
     uuid = models.CharField(
@@ -156,7 +156,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
             self.pub_date_begin = now
         if not self.uuid:
             self.uuid = uuid1()
-        super(PostBase, self).save(*args, **kwargs)
+        super(PostModel, self).save(*args, **kwargs)
 
     @property
     def next(self):
@@ -177,7 +177,7 @@ class PostBase(models.TimestampModel, models.OrderedModel, models.I18NModel):
         return post
 
 
-class PostBaseTranslation(models.TranslationModel):
+class PostModelTranslation(models.TranslationModel):
     title = models.CharField(
         unique=True,
         max_length=255,
@@ -202,11 +202,11 @@ class PostBaseTranslation(models.TranslationModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        super(PostBaseTranslation, self).save(*args, **kwargs)
+        super(PostModelTranslation, self).save(*args, **kwargs)
 
 
 if "comments" in settings.INSTALLED_APPS:
-    class PostCommentBase(PostBase):
+    class PostCommentModel(PostModel):
         can_comment = models.BooleanField(
             default=True,
             verbose_name=_("can comment"),
