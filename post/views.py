@@ -25,7 +25,7 @@ from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from fluo.views import View
+from django.views.generic import View
 from .models import PUBLISHED
 
 
