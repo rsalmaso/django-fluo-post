@@ -35,10 +35,10 @@ DRAFT = 'draft'
 PUBLISHED = 'published'
 
 
-STATUS_CHOICES = (
+STATUS_CHOICES = [
     (DRAFT, _('Draft')),
     (PUBLISHED, _('Published')),
-)
+]
 
 
 class PostManager(models.Manager):
@@ -142,7 +142,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     class Meta:
         abstract = True
-        unique_together = (('title', 'slug',),)
+        unique_together = [('title', 'slug')]
 
     def __str__(self):
         return self.title
