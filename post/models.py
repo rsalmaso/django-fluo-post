@@ -84,6 +84,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
         related_name='%(app_label)s_%(class)s_owned',
         verbose_name=_('owned by'),
         help_text=_('Post owner.'),
