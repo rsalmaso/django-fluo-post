@@ -20,5 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import unicode_literals
+from django.apps import AppConfig
+from django.utils.translation import ugettext_lazy as _
 
-default_app_config = "post.apps.PostConfig"
+
+class PostConfig(AppConfig):
+    name = "post"
+    verbose_name = _("Post")
