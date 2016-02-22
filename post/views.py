@@ -40,8 +40,8 @@ class ListView(PostView):
     order_by = None
     post_model = None
     translation_model = None
-    template_name = 'post/list.html'
-    object_list_name = 'post_list'
+    template_name = "post/list.html"
+    object_list_name = "post_list"
 
     def get_queryset(self, request):
         return self.post_model.objects.published()
@@ -57,7 +57,7 @@ class ListView(PostView):
         })
 
         try:
-            page = int(request.GET.get('page', '1'))
+            page = int(request.GET.get("page", "1"))
         except ValueError:
             page = 1
 
@@ -78,8 +78,8 @@ class ListView(PostView):
 class DetailView(PostView):
     post_model = None
     translation_model = None
-    template_name = 'post/detail.html'
-    object_name = 'post'
+    template_name = "post/detail.html"
+    object_name = "post"
 
     def get_post(self, request, slug):
         if self.translation_model is not None:
@@ -118,25 +118,25 @@ if "comments" in settings.INSTALLED_APPS:
 
         def process_context(self, request, context=None):
             context = super(DetailView, self).process_context(request, context)
-            context['comments'] = self.get_comments(request, context)
-            context['form'] = self.comment_form(initial={'type': Type.COMMENT}, user=request.user)
-            context['HANDLE'] = Type.HANDLE
-            context['MODERATE'] = Type.MODERATE
-            context['COMMENT'] = Type.COMMENT
+            context["comments"] = self.get_comments(request, context)
+            context["form"] = self.comment_form(initial={"type": Type.COMMENT}, user=request.user)
+            context["HANDLE"] = Type.HANDLE
+            context["MODERATE"] = Type.MODERATE
+            context["COMMENT"] = Type.COMMENT
             return context
 
         def post(self, request, slug, *args, **kwargs):
             post = self.get_post(request, slug)
             context = self.process_context(request, {
-                'post': post,
+                "post": post,
             })
-            type = request.POST.get('type')
+            type = request.POST.get("type")
             if type == Type.COMMENT:
                 form = self.comment_form(request.POST, request.user)
                 if form.is_valid():
                     form.save(request, post)
                 else:
-                    context['form'] = form
+                    context["form"] = form
             elif type == Type.MODERATE:
                 form = self.moderation_form(request.POST)
                 if form.is_valid():
@@ -154,7 +154,7 @@ if "comments" in settings.INSTALLED_APPS:
 
 class PreviewView(DetailView):
     def get(self, request, slug):
-        token = request.GET.get('token', None)
+        token = request.GET.get("token", None)
 
         if not token:
             raise Http404

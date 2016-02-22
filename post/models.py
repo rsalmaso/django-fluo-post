@@ -31,13 +31,13 @@ from fluo.db.models import Q
 from fluo.db import models
 
 
-DRAFT = 'draft'
-PUBLISHED = 'published'
+DRAFT = "draft"
+PUBLISHED = "published"
 
 
 STATUS_CHOICES = [
-    (DRAFT, _('Draft')),
-    (PUBLISHED, _('Published')),
+    (DRAFT, _("Draft")),
+    (PUBLISHED, _("Published")),
 ]
 
 
@@ -53,7 +53,7 @@ class PostManager(models.Manager):
             query = self.published()
             if query:
                 query = self.filter(**kwargs)
-            return query.order_by('pub_date_begin')[0]
+            return query.order_by("pub_date_begin")[0]
         except (self.model.DoesNotExist, IndexError):
             raise self.model.DoesNotExist
 
@@ -72,77 +72,77 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         max_length=36,
         blank=True,
         null=True,
-        verbose_name=_('uuid field'),
-        help_text=_('for preview.'),
+        verbose_name=_("uuid field"),
+        help_text=_("for preview."),
     )
     status = models.StatusField(
         choices=STATUS_CHOICES,
         default=DRAFT,
-        help_text=_('If should be displayed or not.'),
+        help_text=_("If should be displayed or not."),
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        related_name='%(app_label)s_%(class)s_owned',
-        verbose_name=_('owned by'),
-        help_text=_('Post owner.'),
+        related_name="%(app_label)s_%(class)s_owned",
+        verbose_name=_("owned by"),
+        help_text=_("Post owner."),
     )
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
-        related_name='%(app_label)s_%(class)s_visible',
-        verbose_name=_('Visible only to'),
-        help_text=_('Post visible to these users, if empty is visible to all users.'),
+        related_name="%(app_label)s_%(class)s_visible",
+        verbose_name=_("Visible only to"),
+        help_text=_("Post visible to these users, if empty is visible to all users."),
     )
     event_date = models.DateTimeField(
         blank=True,
         null=True,
-        verbose_name=_('Post date'),
-        help_text=_('Date which post refers to.'),
+        verbose_name=_("Post date"),
+        help_text=_("Date which post refers to."),
     )
     pub_date_begin = models.DateTimeField(
         blank=True,
         null=True,
-        verbose_name=_('Publication date begin'),
-        help_text=_('When post publication date begins.'),
+        verbose_name=_("Publication date begin"),
+        help_text=_("When post publication date begins."),
     )
     pub_date_end = models.DateTimeField(
         blank=True,
         null=True,
-        verbose_name=_('Publication date end'),
-        help_text=_('When post publication date ends.'),
+        verbose_name=_("Publication date end"),
+        help_text=_("When post publication date ends."),
     )
     title = models.CharField(
         unique=True,
         max_length=255,
-        verbose_name=_('Title'),
+        verbose_name=_("Title"),
     )
     slug = models.SlugField(
         unique=True,
         max_length=255,
-        verbose_name=_('Slug field'),
+        verbose_name=_("Slug field"),
     )
     abstract = models.TextField(
         blank=True,
         null=True,
-        verbose_name=_('Abstract'),
-        help_text=_('A brief description of the post'),
+        verbose_name=_("Abstract"),
+        help_text=_("A brief description of the post"),
     )
     text = models.TextField(
         blank=True,
         null=True,
-        verbose_name=_('Default text'),
+        verbose_name=_("Default text"),
     )
     note = models.TextField(
         blank=True,
-        verbose_name=_('Note'),
+        verbose_name=_("Note"),
     )
 
     class Meta:
         abstract = True
-        unique_together = [('title', 'slug')]
+        unique_together = [("title", "slug")]
 
     def __str__(self):
         return self.title
@@ -181,19 +181,19 @@ class PostModelTranslation(models.TranslationModel):
     title = models.CharField(
         unique=True,
         max_length=255,
-        verbose_name=_('Title'),
+        verbose_name=_("Title"),
     )
     slug = models.SlugField(
         unique=True,
         max_length=255,
-        verbose_name=_('Slug field'),
+        verbose_name=_("Slug field"),
     )
     abstract = models.TextField(
-        verbose_name=_('Abstract'),
-        help_text=_('A brief description'),
+        verbose_name=_("Abstract"),
+        help_text=_("A brief description"),
     )
     text = models.TextField(
-        verbose_name=_('Body'),
+        verbose_name=_("Body"),
     )
 
     class Meta:

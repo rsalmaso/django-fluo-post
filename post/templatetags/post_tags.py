@@ -42,7 +42,7 @@ class GetPostListNode(template.Node):
         paginator = Paginator(post_list, paginate_by)
 
         try:
-            page = int(request.GET.get('page', '1'))
+            page = int(request.GET.get("page", "1"))
         except ValueError:
             page = 1
 
@@ -66,7 +66,7 @@ class GetPostListNode(template.Node):
             post = post[:self.limit]
 
         if self.paginate_by:
-            request = context['request']
+            request = context["request"]
             post = self._paginate(request, post, self.paginate_by)
 
         context[self.name] = post
@@ -76,12 +76,12 @@ class GetPostListNode(template.Node):
 def _get_post(parser, token, tag_name, query_set=None):
     args = token.split_contents()[1:]
     kwargs = {
-        'as': None,
-        'limit': None,
-        'category': None,
-        'order_by': None,
-        'paginate_by': None,
-        'query_set': query_set,
+        "as": None,
+        "limit": None,
+        "category": None,
+        "order_by": None,
+        "paginate_by": None,
+        "query_set": query_set,
     }
     kw = kwargs.keys()
 
@@ -94,24 +94,24 @@ def _get_post(parser, token, tag_name, query_set=None):
         key = args[i]
         value = args[i+1]
         if key in kw:
-            if key in ('limit', 'paginate_by'):
+            if key in ("limit", "paginate_by"):
                 try:
                     value = int(value)
                 except ValueError as err:
                     raise TemplateSyntaxError("'%s' requires 'limit' to be a valid integer (got %r): %s" % (tag_name, value, err))
-            elif key in ('order_by', 'category',):
-                value = value.split(',')
+            elif key in ("order_by", "category",):
+                value = value.split(",")
             kwargs[key] = value
             i += 2
         else:
             raise TemplateSyntaxError("'%s' unknown keyword (got %r)" % (tag_name, key))
-    kwargs['name'] = kwargs['as']
-    kwargs.pop('as')
+    kwargs["name"] = kwargs["as"]
+    kwargs.pop("as")
     return GetPostListNode(**kwargs)
 
 
 @register.tag
-def get_all_post(parser, token, name='get_all_post', post_model=None, translation_model=None):
+def get_all_post(parser, token, name="get_all_post", post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -121,8 +121,8 @@ def get_all_post(parser, token, name='get_all_post', post_model=None, translatio
         {% get_all_post as post %}
         {% get_all_post as post paginate_by 25 %}
         {% get_all_post as post limit 5 %}
-        {% get_all_post as post category 'main'  %}
-        {% get_all_post as post order_by '-date'  %}
+        {% get_all_post as post category "main"  %}
+        {% get_all_post as post order_by "-date"  %}
 
         {% for item in post %}
         ...
@@ -132,7 +132,7 @@ def get_all_post(parser, token, name='get_all_post', post_model=None, translatio
 
 
 @register.tag
-def get_published_post(parser, token, name='get_published_post', post_model=None, translation_model=None):
+def get_published_post(parser, token, name="get_published_post", post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -142,8 +142,8 @@ def get_published_post(parser, token, name='get_published_post', post_model=None
         {% get_published_post as post %}
         {% get_published_post as post paginate_by 25 %}
         {% get_published_post as post limit 5 %}
-        {% get_published_post as post category 'main'  %}
-        {% get_published_post as post order_by '-date'  %}
+        {% get_published_post as post category "main"  %}
+        {% get_published_post as post order_by "-date"  %}
 
         {% for item in post %}
         ...
@@ -153,7 +153,7 @@ def get_published_post(parser, token, name='get_published_post', post_model=None
 
 
 @register.tag
-def get_draft_post(parser, token, name='get_draft_post', post_model=None, translation_model=None):
+def get_draft_post(parser, token, name="get_draft_post", post_model=None, translation_model=None):
     """
     This will store a list of the post
     in the context.
@@ -163,8 +163,8 @@ def get_draft_post(parser, token, name='get_draft_post', post_model=None, transl
         {% get_draft_post as post %}
         {% get_draft_post as post paginate_by 25 %}
         {% get_draft_post as post limit 5 %}
-        {% get_draft_post as post category 'main'  %}
-        {% get_draft_post as post order_by '-date'  %}
+        {% get_draft_post as post category "main"  %}
+        {% get_draft_post as post order_by "-date"  %}
 
         {% for item in post %}
         ...
@@ -180,7 +180,7 @@ class GetPostNode(template.Node):
         self.translation_model = translation_model
 
     def render(self, context):
-        slug = context['params']['slug']
+        slug = context["params"]["slug"]
         if self.translation_model is not None:
             try:
                 post = self.translation_model.objects.get(slug=slug).post
@@ -194,7 +194,7 @@ class GetPostNode(template.Node):
 
 
 @register.tag
-def get_post(parser, token, name='get_post', post_model=None, translation_model=None):
+def get_post(parser, token, name="get_post", post_model=None, translation_model=None):
     """
     Usage::
 
@@ -202,5 +202,5 @@ def get_post(parser, token, name='get_post', post_model=None, translation_model=
     """
     args = token.split_contents()
     if len(args) < 3:
-        raise TemplateSyntaxError("'%(name)s' requires 'as variable' (got %(args)r)" % {'name': name, 'args': args })
+        raise TemplateSyntaxError("'%(name)s' requires 'as variable' (got %(args)r)" % {"name": name, "args": args })
     return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)
