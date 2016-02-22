@@ -124,8 +124,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         max_length=255,
         verbose_name=_('Slug field'),
     )
-    abstract = models.CharField(
-        max_length=255,
+    abstract = models.TextField(
         blank=True,
         null=True,
         verbose_name=_('Abstract'),
@@ -189,8 +188,7 @@ class PostModelTranslation(models.TranslationModel):
         max_length=255,
         verbose_name=_('Slug field'),
     )
-    abstract = models.CharField(
-        max_length=255,
+    abstract = models.TextField(
         verbose_name=_('Abstract'),
         help_text=_('A brief description'),
     )
