@@ -112,17 +112,19 @@ if "comments" in settings.INSTALLED_APPS:
         moderation_form = ModerateForm
         comment_form = CommentForm
         handle_form = HandleForm
+        handle_comment = True
 
         def get_comments(self, request, context):
             raise NotImplemented
 
         def process_context(self, request, context=None):
             context = super(DetailView, self).process_context(request, context)
-            context["comments"] = self.get_comments(request, context)
-            context["form"] = self.comment_form(initial={"type": Type.COMMENT}, user=request.user)
-            context["HANDLE"] = Type.HANDLE
-            context["MODERATE"] = Type.MODERATE
-            context["COMMENT"] = Type.COMMENT
+            if self.handle_comment:
+                context["comments"] = self.get_comments(request, context)
+                context["form"] = self.comment_form(initial={"type": Type.COMMENT}, user=request.user)
+                context["HANDLE"] = Type.HANDLE
+                context["MODERATE"] = Type.MODERATE
+                context["COMMENT"] = Type.COMMENT
             return context
 
         def post(self, request, slug, *args, **kwargs):
@@ -130,21 +132,22 @@ if "comments" in settings.INSTALLED_APPS:
             context = self.process_context(request, {
                 "post": post,
             })
-            type = request.POST.get("type")
-            if type == Type.COMMENT:
-                form = self.comment_form(request.POST, request.user)
-                if form.is_valid():
-                    form.save(request, post)
-                else:
-                    context["form"] = form
-            elif type == Type.MODERATE:
-                form = self.moderation_form(request.POST)
-                if form.is_valid():
-                    form.save(request, post)
-            elif type == Type.HANDLE:
-                form = self.handle_form(request.POST)
-                if form.is_valid():
-                    form.save(request, post)
+            if self.handle_comment:
+                type = request.POST.get("type")
+                if type == Type.COMMENT:
+                    form = self.comment_form(request.POST, request.user)
+                    if form.is_valid():
+                        form.save(request, post)
+                    else:
+                        context["form"] = form
+                elif type == Type.MODERATE:
+                    form = self.moderation_form(request.POST)
+                    if form.is_valid():
+                        form.save(request, post)
+                elif type == Type.HANDLE:
+                    form = self.handle_form(request.POST)
+                    if form.is_valid():
+                        form.save(request, post)
             return render(
                 request,
                 self.template_name,
