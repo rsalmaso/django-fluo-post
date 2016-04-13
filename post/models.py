@@ -190,9 +190,11 @@ class PostModelTranslation(models.TranslationModel):
     )
     abstract = models.TextField(
         verbose_name=_("Abstract"),
+        blank=True,
         help_text=_("A brief description"),
     )
     text = models.TextField(
+        blank=True,
         verbose_name=_("Body"),
     )
 
