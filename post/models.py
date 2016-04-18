@@ -38,6 +38,12 @@ class PostModelQuerySet(models.QuerySet):
     def published(self):
         return self._filter(status=PostModel.STATUS_PUBLISHED)
 
+    def first(self, **kwargs):
+        try:
+            return self.filter(**kwargs).order_by("pub_date_begin")[0]
+        except (self.model.DoesNotExist, IndexError):
+            raise self.model.DoesNotExist
+
     def last(self, **kwargs):
         try:
             return self.filter(**kwargs).order_by("-pub_date_begin")[0]
