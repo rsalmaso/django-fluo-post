@@ -31,22 +31,12 @@ from fluo.db.models import Q
 from fluo.db import models
 
 
-DRAFT = "draft"
-PUBLISHED = "published"
-
-
-STATUS_CHOICES = [
-    (DRAFT, _("Draft")),
-    (PUBLISHED, _("Published")),
-]
-
-
 class PostManager(models.Manager):
     def draft(self):
-        return self._filter(status=DRAFT)
+        return self._filter(status=PostModel.STATUS_DRAFT)
 
     def published(self):
-        return self._filter(status=PUBLISHED)
+        return self._filter(status=PostModel.STATUS_PUBLISHED)
 
     def last(self, **kwargs):
         try:
@@ -66,7 +56,14 @@ class PostManager(models.Manager):
 
 @python_2_unicode_compatible
 class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
-    objects = PostManager()
+    STATUS_DRAFT = "draft"
+    STATUS_PUBLISHED = "published"
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, _("Draft")),
+        (STATUS_PUBLISHED, _("Published")),
+    ]
+
+    objects = PostModelManager()
 
     uuid = models.CharField(
         max_length=36,
@@ -77,7 +74,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     )
     status = models.StatusField(
         choices=STATUS_CHOICES,
-        default=DRAFT,
+        default=STATUS_DRAFT,
         help_text=_("If should be displayed or not."),
     )
     owner = models.ForeignKey(
@@ -150,9 +147,9 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         now = timezone.now()
-        if not self.event_date and self.status == PUBLISHED:
+        if not self.event_date and self.status == PostModel.STATUS_PUBLISHED:
             self.event_date = now
-        if not self.pub_date_begin and self.status == PUBLISHED:
+        if not self.pub_date_begin and self.status == PostModel.STATUS_PUBLISHED:
             self.pub_date_begin = now
         if not self.uuid:
             self.uuid = uuid1()
