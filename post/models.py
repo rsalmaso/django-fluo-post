@@ -40,10 +40,7 @@ class PostModelQuerySet(models.QuerySet):
 
     def last(self, **kwargs):
         try:
-            query = self.published()
-            if query:
-                query = self.filter(**kwargs)
-            return query.order_by("pub_date_begin")[0]
+            return self.filter(**kwargs).order_by("-pub_date_begin")[0]
         except (self.model.DoesNotExist, IndexError):
             raise self.model.DoesNotExist
 
