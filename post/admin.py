@@ -32,7 +32,7 @@ MAX_LANGUAGES = len(settings.LANGUAGES)
 
 class PostTranslationInlineModelForm(forms.ModelForm):
     pass
-class PostTranslationInline(admin.TabularInline):
+class PostTranslationInlineMixin:
     form = PostTranslationInlineModelForm
     extra = MAX_LANGUAGES
     max_num = MAX_LANGUAGES
