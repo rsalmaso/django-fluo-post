@@ -81,7 +81,7 @@ class DetailView(PostView):
     template_name = "post/detail.html"
     object_name = "post"
 
-    def get_post(self, request, slug):
+    def get_object(self, request, slug):
         q = Q(slug__iexact=slug)
         if self.translation_model is not None:
             q |= Q(translations__slug__exact=slug)
@@ -91,7 +91,7 @@ class DetailView(PostView):
             raise Http404
 
     def get(self, request, slug):
-        post = self.get_post(request, slug)
+        post = self.get_object(request, slug)
 
         context = self.process_context(request, {
             self.object_name: post,
@@ -127,7 +127,7 @@ if "comments" in settings.INSTALLED_APPS:
             return context
 
         def post(self, request, slug, *args, **kwargs):
-            post = self.get_post(request, slug)
+            post = self.get_object(request, slug)
             context = self.process_context(request, {
                 "post": post,
             })
