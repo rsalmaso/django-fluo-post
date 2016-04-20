@@ -21,12 +21,12 @@
 # THE SOFTWARE.
 
 from __future__ import unicode_literals
+from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.views.generic import View
-from .models import PUBLISHED
 
 
 class PostView(View):
@@ -82,14 +82,13 @@ class DetailView(PostView):
     object_name = "post"
 
     def get_post(self, request, slug):
+        q = Q(slug__iexact=slug)
         if self.translation_model is not None:
-            try:
-                post = self.translation_model.objects.get(slug=slug, parent__status=PUBLISHED).parent
-            except self.translation_model.DoesNotExist:
-                post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
-        else:
-            post = get_object_or_404(self.post_model, slug=slug, status=PUBLISHED)
-        return post
+            q |= Q(translations__slug__exact=slug)
+        try:
+            return self.post_model.objects.published().get(q)
+        except self.post_model.DoesNotExist:
+            raise Http404
 
     def get(self, request, slug):
         post = self.get_post(request, slug)
