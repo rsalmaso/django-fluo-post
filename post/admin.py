@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2007-2016, Raffaele Salmaso <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from fluo import admin
@@ -70,7 +67,7 @@ class PostModelAdmin(admin.OrderedModelAdmin):
     def save_model(self, request, obj, form, change):
         if request.user.is_authenticated() and not obj.owner:
             obj.owner = request.user
-        super(PostModelAdmin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 class PostCommentModelAdmin(PostModelAdmin):

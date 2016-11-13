@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2007-2016, Raffaele Salmaso <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import unicode_literals
 from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -117,7 +114,7 @@ if "comments" in settings.INSTALLED_APPS:
             raise NotImplemented
 
         def process_context(self, request, context=None):
-            context = super(DetailView, self).process_context(request, context)
+            context = super().process_context(request, context)
             if self.handle_comment:
                 context["comments"] = self.get_comments(request, context)
                 context["form"] = self.comment_form(initial={"type": Type.COMMENT}, user=request.user)
@@ -161,4 +158,4 @@ class PreviewView(DetailView):
         if not token:
             raise Http404
 
-        return super(PreviewView, self).get(request, slug)
+        return super().get(request, slug)

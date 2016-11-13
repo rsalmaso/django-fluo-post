@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2007-2016, Raffaele Salmaso <raffaele@salmaso.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,11 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import unicode_literals
 from uuid import uuid1
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
 from django.template.defaultfilters import slugify
 from fluo.db.models import Q
@@ -61,7 +57,6 @@ class PostModelManager(models.Manager.from_queryset(PostModelQuerySet)):
     use_for_related_fields = True
 
 
-@python_2_unicode_compatible
 class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     STATUS_DRAFT = "draft"
     STATUS_PUBLISHED = "published"
@@ -160,7 +155,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
             self.pub_date_begin = now
         if not self.uuid:
             self.uuid = uuid1()
-        super(PostModel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def next(self):
@@ -207,7 +202,7 @@ class PostModelTranslation(models.TranslationModel):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        super(PostModelTranslation, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 if "comments" in settings.INSTALLED_APPS:
