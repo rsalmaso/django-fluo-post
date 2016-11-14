@@ -67,10 +67,10 @@ class GetPostListNode(template.Node):
             post = self._paginate(request, post, self.paginate_by)
 
         context[self.name] = post
-        return ''
+        return ""
 
 
-def _get_post(parser, token, tag_name, query_set=None):
+def _get_posts(parser, token, tag_name, query_set=None):
     args = token.split_contents()[1:]
     kwargs = {
         "as": None,
@@ -108,66 +108,66 @@ def _get_post(parser, token, tag_name, query_set=None):
 
 
 @register.tag
-def get_all_post(parser, token, name="get_all_post", post_model=None, translation_model=None):
+def get_all_posts(parser, token, name="get_all_posts", post_model=None, translation_model=None):
     """
-    This will store a list of the post
+    This will store a list of the posts
     in the context.
 
     Usage::
 
-        {% get_all_post as post %}
-        {% get_all_post as post paginate_by 25 %}
-        {% get_all_post as post limit 5 %}
-        {% get_all_post as post category "main"  %}
-        {% get_all_post as post order_by "-date"  %}
+        {% get_all_posts as posts %}
+        {% get_all_posts as posts paginate_by 25 %}
+        {% get_all_posts as posts limit 5 %}
+        {% get_all_posts as posts category "main"  %}
+        {% get_all_posts as posts order_by "-date"  %}
 
-        {% for item in post %}
+        {% for post in posts %}
         ...
         {% endfor %}
     """
-    return _get_post(parser, token, name, post_model.objects.all)
+    return _get_posts(parser, token, name, post_model.objects.all)
 
 
 @register.tag
-def get_published_post(parser, token, name="get_published_post", post_model=None, translation_model=None):
+def get_published_posts(parser, token, name="get_published_posts", post_model=None, translation_model=None):
     """
-    This will store a list of the post
+    This will store a list of the posts
     in the context.
 
     Usage::
 
-        {% get_published_post as post %}
-        {% get_published_post as post paginate_by 25 %}
-        {% get_published_post as post limit 5 %}
-        {% get_published_post as post category "main"  %}
-        {% get_published_post as post order_by "-date"  %}
+        {% get_published_posts as posts %}
+        {% get_published_posts as posts paginate_by 25 %}
+        {% get_published_posts as posts limit 5 %}
+        {% get_published_posts as posts category "main"  %}
+        {% get_published_posts as posts order_by "-date"  %}
 
-        {% for item in post %}
+        {% for post in posts %}
         ...
         {% endfor %}
     """
-    return _get_post(parser, token, name, post_model.objects.published)
+    return _get_posts(parser, token, name, post_model.objects.published)
 
 
 @register.tag
-def get_draft_post(parser, token, name="get_draft_post", post_model=None, translation_model=None):
+def get_draft_posts(parser, token, name="get_draft_posts", post_model=None, translation_model=None):
     """
-    This will store a list of the post
+    This will store a list of the posts
     in the context.
 
     Usage::
 
-        {% get_draft_post as post %}
-        {% get_draft_post as post paginate_by 25 %}
-        {% get_draft_post as post limit 5 %}
-        {% get_draft_post as post category "main"  %}
-        {% get_draft_post as post order_by "-date"  %}
+        {% get_draft_posts as posts %}
+        {% get_draft_posts as posts paginate_by 25 %}
+        {% get_draft_posts as posts limit 5 %}
+        {% get_draft_posts as posts category "main"  %}
+        {% get_draft_posts as posts order_by "-date"  %}
 
-        {% for item in post %}
+        {% for post in posts %}
         ...
         {% endfor %}
     """
-    return _get_post(parser, token, name, post_model.objects.draft)
+    return _get_posts(parser, token, name, post_model.objects.draft)
 
 
 class GetPostNode(template.Node):
@@ -191,11 +191,11 @@ class GetPostNode(template.Node):
 
 
 @register.tag
-def get_post(parser, token, name="get_post", post_model=None, translation_model=None):
+def get_posts(parser, token, name="get_posts", post_model=None, translation_model=None):
     """
     Usage::
 
-        {% get_post as post %}
+        {% get_posts as posts %}
     """
     args = token.split_contents()
     if len(args) < 3:

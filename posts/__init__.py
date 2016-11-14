@@ -18,10 +18,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from django.apps import AppConfig
-from django.utils.translation import ugettext_lazy as _
 
-
-class PostConfig(AppConfig):
-    name = "post"
-    verbose_name = _("Post")
+default_app_config = "posts.apps.PostsConfig"
