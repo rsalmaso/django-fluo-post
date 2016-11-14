@@ -5,7 +5,7 @@ import io
 import posts
 
 
-with io.open("README", "rt", encoding="utf-8") as fp:
+with io.open("README.md", "rt", encoding="utf-8") as fp:
     long_description = fp.read()
 
 
