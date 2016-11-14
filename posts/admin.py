@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import django
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from fluo import admin
@@ -65,7 +66,8 @@ class PostModelAdmin(admin.OrderedModelAdmin):
     _get_users.short_description = _("Show to")
 
     def save_model(self, request, obj, form, change):
-        if request.user.is_authenticated() and not obj.owner:
+        is_authenticated = request.user.is_authenticated() if django.VERSION < (1, 10) else request.user.is_authenticated
+        if is_authenticated and not obj.owner:
             obj.owner = request.user
         super().save_model(request, obj, form, change)
 
