@@ -178,22 +178,26 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
 class PostModelTranslation(models.TranslationModel):
     title = models.CharField(
-        unique=True,
         max_length=255,
+        blank=True,
+        null=True,
         verbose_name=_("Title"),
     )
     slug = models.SlugField(
-        unique=True,
         max_length=255,
+        blank=True,
+        null=True,
         verbose_name=_("Slug field"),
     )
     abstract = models.TextField(
         verbose_name=_("Abstract"),
         blank=True,
+        null=True,
         help_text=_("A brief description"),
     )
     text = models.TextField(
         blank=True,
+        null=True,
         verbose_name=_("Body"),
     )
 
