@@ -16,6 +16,7 @@ setup(
     version=posts.__version__,
     description="Integrate posts with django",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     author=posts.__author__,
     author_email=posts.__email__,
     url="https://bitbucket.org/rsalmaso/django-fluo-posts",
