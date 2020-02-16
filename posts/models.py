@@ -43,8 +43,7 @@ class PostModelQuerySet(models.QuerySet):
 
 
 class PostModelManager(models.Manager.from_queryset(PostModelQuerySet)):
-    use_for_related_fields = True
-    silence_use_for_related_fields_deprecation = True
+    pass
 
 
 class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
