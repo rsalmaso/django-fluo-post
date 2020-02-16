@@ -56,8 +56,8 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     objects = PostModelManager()
 
-    uuid = models.CharField(
-        max_length=36, blank=True, null=True, verbose_name=_("uuid field"), help_text=_("for preview."),
+    uuid = models.StringField(
+        max_length=36, blank=True, verbose_name=_("uuid field"), help_text=_("for preview."),
     )
     status = models.StatusField(
         choices=STATUS_CHOICES, default=STATUS_DRAFT, help_text=_("If should be displayed or not."),
@@ -90,12 +90,12 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     pub_date_end = models.DateTimeField(
         blank=True, null=True, verbose_name=_("Publication date end"), help_text=_("When post publication date ends."),
     )
-    title = models.CharField(unique=True, max_length=255, verbose_name=_("Title"))
-    slug = models.SlugField(unique=True, max_length=255, verbose_name=_("Slug field"))
+    title = models.StringField(unique=True, verbose_name=_("Title"))
+    slug = models.SlugField(unique=True, verbose_name=_("Slug field"))
     abstract = models.TextField(
-        blank=True, null=True, verbose_name=_("Abstract"), help_text=_("A brief description of the post"),
+        blank=True, verbose_name=_("Abstract"), help_text=_("A brief description of the post"),
     )
-    text = models.TextField(blank=True, null=True, verbose_name=_("Default text"))
+    text = models.TextField(blank=True, verbose_name=_("Default text"))
     note = models.TextField(blank=True, verbose_name=_("Note"))
 
     class Meta:
@@ -134,10 +134,10 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
 
 class PostModelTranslation(models.TranslationModel):
-    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    slug = models.SlugField(max_length=255, blank=True, null=True, verbose_name=_("Slug field"))
-    abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True, help_text=_("A brief description"))
-    text = models.TextField(blank=True, null=True, verbose_name=_("Body"))
+    title = models.StringField(blank=True, verbose_name=_("Title"))
+    slug = models.SlugField(blank=True, verbose_name=_("Slug field"))
+    abstract = models.TextField(verbose_name=_("Abstract"), blank=True, help_text=_("A brief description"))
+    text = models.TextField(blank=True, verbose_name=_("Body"))
 
     class Meta:
         abstract = True
