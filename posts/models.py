@@ -19,12 +19,13 @@
 # THE SOFTWARE.
 
 from uuid import uuid1
+
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 from django.template.defaultfilters import slugify
-from fluo.db.models import Q
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from fluo.db import models
+from fluo.db.models import Q
 
 
 class PostModelQuerySet(models.QuerySet):
@@ -48,8 +49,8 @@ class PostModelQuerySet(models.QuerySet):
 
     def _filter(self, status):
         now = timezone.now()
-        q1 = Q(Q(pub_date_begin__isnull=True)|Q(pub_date_begin__lte=now))
-        q2 = Q(Q(pub_date_end__isnull=True)|Q(pub_date_end__gte=now))
+        q1 = Q(Q(pub_date_begin__isnull=True) | Q(pub_date_begin__lte=now))
+        q2 = Q(Q(pub_date_end__isnull=True) | Q(pub_date_end__gte=now))
         return self.filter(status=status).filter(q1 & q2)
 
 
@@ -69,16 +70,10 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
     objects = PostModelManager()
 
     uuid = models.CharField(
-        max_length=36,
-        blank=True,
-        null=True,
-        verbose_name=_("uuid field"),
-        help_text=_("for preview."),
+        max_length=36, blank=True, null=True, verbose_name=_("uuid field"), help_text=_("for preview."),
     )
     status = models.StatusField(
-        choices=STATUS_CHOICES,
-        default=STATUS_DRAFT,
-        help_text=_("If should be displayed or not."),
+        choices=STATUS_CHOICES, default=STATUS_DRAFT, help_text=_("If should be displayed or not."),
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -97,10 +92,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         help_text=_("Post visible to these users, if empty is visible to all users."),
     )
     event_date = models.DateTimeField(
-        blank=True,
-        null=True,
-        verbose_name=_("Post date"),
-        help_text=_("Date which post refers to."),
+        blank=True, null=True, verbose_name=_("Post date"), help_text=_("Date which post refers to."),
     )
     pub_date_begin = models.DateTimeField(
         blank=True,
@@ -109,36 +101,15 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         help_text=_("When post publication date begins."),
     )
     pub_date_end = models.DateTimeField(
-        blank=True,
-        null=True,
-        verbose_name=_("Publication date end"),
-        help_text=_("When post publication date ends."),
+        blank=True, null=True, verbose_name=_("Publication date end"), help_text=_("When post publication date ends."),
     )
-    title = models.CharField(
-        unique=True,
-        max_length=255,
-        verbose_name=_("Title"),
-    )
-    slug = models.SlugField(
-        unique=True,
-        max_length=255,
-        verbose_name=_("Slug field"),
-    )
+    title = models.CharField(unique=True, max_length=255, verbose_name=_("Title"))
+    slug = models.SlugField(unique=True, max_length=255, verbose_name=_("Slug field"))
     abstract = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name=_("Abstract"),
-        help_text=_("A brief description of the post"),
+        blank=True, null=True, verbose_name=_("Abstract"), help_text=_("A brief description of the post"),
     )
-    text = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name=_("Default text"),
-    )
-    note = models.TextField(
-        blank=True,
-        verbose_name=_("Note"),
-    )
+    text = models.TextField(blank=True, null=True, verbose_name=_("Default text"))
+    note = models.TextField(blank=True, verbose_name=_("Note"))
 
     class Meta:
         abstract = True
@@ -164,7 +135,7 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         posts = self._default_manager.filter(status=self.status, pub_date_begin__gt=self.pub_date_begin)
         try:
             post = posts[0]
-        except:
+        except IndexError:
             post = None
         return post
 
@@ -173,35 +144,16 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
         posts = self._default_manager.filter(status=self.status, pub_date_begin__lt=self.pub_date_begin)
         try:
             post = posts[0]
-        except:
+        except IndexError:
             post = None
         return post
 
 
 class PostModelTranslation(models.TranslationModel):
-    title = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name=_("Title"),
-    )
-    slug = models.SlugField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name=_("Slug field"),
-    )
-    abstract = models.TextField(
-        verbose_name=_("Abstract"),
-        blank=True,
-        null=True,
-        help_text=_("A brief description"),
-    )
-    text = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name=_("Body"),
-    )
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
+    slug = models.SlugField(max_length=255, blank=True, null=True, verbose_name=_("Slug field"))
+    abstract = models.TextField(verbose_name=_("Abstract"), blank=True, null=True, help_text=_("A brief description"))
+    text = models.TextField(blank=True, null=True, verbose_name=_("Body"))
 
     class Meta:
         abstract = True
@@ -212,11 +164,9 @@ class PostModelTranslation(models.TranslationModel):
 
 
 if "comments" in settings.INSTALLED_APPS:
+
     class PostCommentModel(PostModel):
-        can_comment = models.BooleanField(
-            default=True,
-            verbose_name=_("can comment"),
-        )
+        can_comment = models.BooleanField(default=True, verbose_name=_("can comment"))
 
         class Meta:
             abstract = True

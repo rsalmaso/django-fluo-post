@@ -18,9 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from django.db.models import Q
 from django.conf import settings
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import View
@@ -49,9 +49,7 @@ class ListView(PostView):
             object_list = object_list.order_by(*self.order_by)
         paginator = Paginator(object_list, self.paginate_by)
 
-        context = self.process_context(request, {
-            self.object_list_name: object_list,
-        })
+        context = self.process_context(request, {self.object_list_name: object_list})
 
         try:
             page = int(request.GET.get("page", "1"))
@@ -65,11 +63,7 @@ class ListView(PostView):
 
         context[self.object_list_name] = post_list
 
-        return render(
-            request,
-            self.template_name,
-            context,
-        )
+        return render(request, self.template_name, context)
 
 
 class DetailView(PostView):
@@ -90,15 +84,9 @@ class DetailView(PostView):
     def get(self, request, slug):
         post = self.get_object(request, slug)
 
-        context = self.process_context(request, {
-            self.object_name: post,
-        })
+        context = self.process_context(request, {self.object_name: post})
 
-        return render(
-            request,
-            self.template_name,
-            context,
-        )
+        return render(request, self.template_name, context)
 
 
 if "comments" in settings.INSTALLED_APPS:
@@ -111,7 +99,7 @@ if "comments" in settings.INSTALLED_APPS:
         handle_comment = True
 
         def get_comments(self, request, context):
-            raise NotImplemented
+            raise NotImplementedError
 
         def process_context(self, request, context=None):
             context = super().process_context(request, context)
@@ -125,9 +113,7 @@ if "comments" in settings.INSTALLED_APPS:
 
         def post(self, request, slug, *args, **kwargs):
             post = self.get_object(request, slug)
-            context = self.process_context(request, {
-                "post": post,
-            })
+            context = self.process_context(request, {"post": post})
             if self.handle_comment:
                 type = request.POST.get("type")
                 if type == Type.COMMENT:
@@ -144,11 +130,7 @@ if "comments" in settings.INSTALLED_APPS:
                     form = self.handle_form(request.POST)
                     if form.is_valid():
                         form.save(request, post)
-            return render(
-                request,
-                self.template_name,
-                context,
-            )
+            return render(request, self.template_name, context)
 
 
 class PreviewView(DetailView):

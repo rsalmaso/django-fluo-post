@@ -60,7 +60,7 @@ class GetPostListNode(template.Node):
             post = post.order_by(*self.order_by)
 
         if self.limit:
-            post = post[:self.limit]
+            post = post[: self.limit]
 
         if self.paginate_by:
             request = context["request"]
@@ -89,14 +89,16 @@ def _get_posts(parser, token, tag_name, query_set=None):
     i = 0
     while i < len(args):
         key = args[i]
-        value = args[i+1]
+        value = args[i + 1]
         if key in kw:
             if key in ("limit", "paginate_by"):
                 try:
                     value = int(value)
                 except ValueError as err:
-                    raise TemplateSyntaxError("'%s' requires 'limit' to be a valid integer (got %r): %s" % (tag_name, value, err))
-            elif key in ("order_by", "category",):
+                    raise TemplateSyntaxError(
+                        "'%s' requires 'limit' to be a valid integer (got %r): %s" % (tag_name, value, err)
+                    )
+            elif key in ("order_by", "category"):
                 value = value.split(",")
             kwargs[key] = value
             i += 2
@@ -187,7 +189,7 @@ class GetPostNode(template.Node):
             post = self.post_model.objects.get(slug=slug)
         context[self.name] = post
 
-        return ''
+        return ""
 
 
 @register.tag
@@ -199,5 +201,5 @@ def get_posts(parser, token, name="get_posts", post_model=None, translation_mode
     """
     args = token.split_contents()
     if len(args) < 3:
-        raise TemplateSyntaxError("'%(name)s' requires 'as variable' (got %(args)r)" % {"name": name, "args": args })
+        raise TemplateSyntaxError("'%(name)s' requires 'as variable' (got %(args)r)" % {"name": name, "args": args})
     return GetPostNode(name=args[2], post_model=post_model, translation_model=translation_model)

@@ -19,17 +19,17 @@
 # THE SOFTWARE.
 
 import django
-from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from fluo import admin
-from fluo import forms
-
+from django.utils.translation import gettext_lazy as _
+from fluo import admin, forms
 
 MAX_LANGUAGES = len(settings.LANGUAGES)
 
 
 class PostTranslationInlineModelForm(forms.ModelForm):
     pass
+
+
 class PostTranslationInlineMixin:
     form = PostTranslationInlineModelForm
     extra = MAX_LANGUAGES
@@ -39,21 +39,28 @@ class PostTranslationInlineMixin:
 
 class PostAdminForm(forms.ModelForm):
     pass
+
+
 class PostModelAdmin(admin.OrderedModelAdmin):
     list_display = ["__str__", "status", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
     list_display_links = ["__str__"]
     list_per_page = 30
     ordering = ["ordering"]
     fieldsets = [
-        [None, {"fields": [
-            ("status", "ordering",),
-            "title",
-            "event_date",
-            ("pub_date_begin", "pub_date_end",),
-            "abstract",
-            "text",
-            "note",
-        ]}],
+        [
+            None,
+            {
+                "fields": [
+                    ["status", "ordering"],
+                    "title",
+                    "event_date",
+                    ["pub_date_begin", "pub_date_end"],
+                    "abstract",
+                    "text",
+                    "note",
+                ]
+            },
+        ],
         [_("Show to"), {"fields": ["users"]}],
     ]
 
@@ -63,10 +70,13 @@ class PostModelAdmin(admin.OrderedModelAdmin):
             return ", ".join([user.username for user in users])
         else:
             return _("All")
+
     _get_users.short_description = _("Show to")
 
     def save_model(self, request, obj, form, change):
-        is_authenticated = request.user.is_authenticated() if django.VERSION < (1, 10) else request.user.is_authenticated
+        is_authenticated = (
+            request.user.is_authenticated() if django.VERSION < (1, 10) else request.user.is_authenticated
+        )
         if is_authenticated and not obj.owner:
             obj.owner = request.user
         super().save_model(request, obj, form, change)
@@ -75,14 +85,19 @@ class PostModelAdmin(admin.OrderedModelAdmin):
 class PostCommentModelAdmin(PostModelAdmin):
     list_display = ["__str__", "status", "can_comment", "event_date", "pub_date_begin", "pub_date_end", "_get_users"]
     fieldsets = [
-        [None, {"fields": [
-            ("status", "ordering"),
-            "title",
-            "event_date",
-            ("pub_date_begin", "pub_date_end"),
-            "abstract",
-            "text",
-            "note",
-        ]}],
+        [
+            None,
+            {
+                "fields": [
+                    ["status", "ordering"],
+                    "title",
+                    "event_date",
+                    ["pub_date_begin", "pub_date_end"],
+                    "abstract",
+                    "text",
+                    "note",
+                ]
+            },
+        ],
         [_("Show to"), {"fields": ["users"]}],
     ]
