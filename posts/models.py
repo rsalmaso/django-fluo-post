@@ -21,8 +21,8 @@
 from uuid import uuid1
 
 from django.conf import settings
-from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from fluo.db import models
 from fluo.db.models import Q
