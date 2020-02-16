@@ -101,7 +101,6 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     class Meta:
         abstract = True
-        base_manager_name = "objects"
         unique_together = [("title", "slug")]
 
     def __str__(self):
