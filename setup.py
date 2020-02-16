@@ -12,7 +12,7 @@ with io.open("README.md", "rt", encoding="utf-8") as fp:
 setup(
     packages=find_packages(),
     include_package_data=True,
-    name="django-fluo-post",
+    name="django-fluo-posts",
     version=posts.__version__,
     description="Integrate posts with django",
     long_description=long_description,
