@@ -120,21 +120,19 @@ class PostModel(models.TimestampModel, models.OrderedModel, models.I18NModel):
 
     @property
     def next(self):
-        posts = self._default_manager.filter(status=self.status, pub_date_begin__gt=self.pub_date_begin)
-        try:
-            post = posts[0]
-        except IndexError:
-            post = None
-        return post
+        return (
+            self._meta.model.objects.filter(status=self.status, pub_date_begin__gt=self.pub_date_begin)
+            .order_by("pub_date_begin")
+            .first()
+        )
 
     @property
     def prev(self):
-        posts = self._default_manager.filter(status=self.status, pub_date_begin__lt=self.pub_date_begin)
-        try:
-            post = posts[0]
-        except IndexError:
-            post = None
-        return post
+        return (
+            self._meta.model.objects.filter(status=self.status, pub_date_begin__lt=self.pub_date_begin)
+            .order_by("pub_date_begin")
+            .first()
+        )
 
 
 class PostModelTranslation(models.TranslationModel):
