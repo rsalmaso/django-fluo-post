@@ -75,7 +75,7 @@ class DetailView(PostView):
     def get_object(self, request, slug):
         q = Q(slug__iexact=slug)
         if self.translation_model is not None:
-            q |= Q(translations__slug__exact=slug)
+            q |= Q(translations__slug__iexact=slug)
         try:
             return self.post_model.objects.published().get(q)
         except self.post_model.DoesNotExist:
