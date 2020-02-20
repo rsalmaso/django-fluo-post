@@ -77,7 +77,7 @@ class DetailView(PostView):
         if self.translation_model is not None:
             q |= Q(translations__slug__iexact=slug)
         try:
-            return self.post_model.objects.published().get(q)
+            return self.post_model.objects.published().distinct().get(q)
         except self.post_model.DoesNotExist:
             raise Http404
 
